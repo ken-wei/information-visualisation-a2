@@ -9,6 +9,8 @@ library(plotly)
 
 
 data <- read.csv("./Births_summary.csv")
+
+print(head(data))
 ##################
 # USER INTERFACE #
 ##################

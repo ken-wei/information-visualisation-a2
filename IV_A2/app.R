@@ -9,14 +9,46 @@
 
 library(shiny)
 library(shinyWidgets)
+library(ggplot2)
+library(gganimate)
+library(hrbrthemes)
+install.packages("reshape2") 
+library(reshape2)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
+breed_rank_data <- breed_rank_data[,-c(10:11)]
+breeds <- breed_rank_data$Breed
+years <- c("2013", "2014", "2015", "2016",
+           "2017", "2018", "2019", "2020")
+print(breeds)
+print(names(breed_rank_data))
+names(breed_rank_data) <- c("Breed", "2013", "2014", "2015", "2016",
+                            "2017", "2018", "2019", "2020")
+
+print(names(breed_rank_data))
+breed_rank_data <- as.data.frame(t(breed_rank_data))
+# Update the column names 
+colnames(breed_rank_data) <- breeds
+# Removes the first row of repeated breed names
+breed_rank_data <- breed_rank_data[-1,]
+testing <- colnames(breed_rank_data)
+print("Hello1")
+print(head(breed_rank_data))
+breed_rank_data$year <- c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
+                          "2019",  "2020")
+print("Hello2")
+print(breed_rank_data$year)
+breed_rank_data <- melt(breed_rank_data, id.vars=c("year"))
+# , variable.name = "Breed"
+
+# , value.name = "Rank"
+# print(breed_rank_data)
 
 # Tab 1 : Breed Rankings
 breed_ranking_tab <- tabPanel(
   'Breed Rankings',
-  
+  plotOutput("plot_rankings"),
   titlePanel('Dog Breeds in United States'),
   p('Australia\'s population has been growing consistently since the 1830s.'),
   p(img(src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Australia_Day_%282049745267%29.jpg/800px-Australia_Day_%282049745267%29.jpg')),
@@ -34,30 +66,32 @@ main_content <- fluidPage(
       span(tags$i(h6("Reported cases are subject to significant variation in testing policy and capacity between countries.")), style="color:#045a8d"),
       span(tags$i(h6("Occasional anomalies (e.g. spikes in daily case counts) are generally caused by changes in case definitions.")), style="color:#045a8d"),
       
-      pickerInput("level_select", "Level:",   
-                  choices = c("Global", "Continent", "Country", "US state"), 
-                  selected = c("Country"),
+      pickerInput("year", label = "Year:",   
+                  choices = c('2013'='X2013.Rank',
+                              '2014'='X2014.Rank',
+                              '2015'='X2015.Rank',
+                              '2016'='X2016.Rank',
+                              '2017'='X2018.Rank',
+                              '2019'='X2019.Rank',
+                              '2020'='X2020.Rank'),
+                  selected = 'X2020.RANK',
                   multiple = FALSE),
       
-      pickerInput("outcome_select", "Outcome:",   
-                  choices = c("Deaths per million", "Cases per million", "Cases (total)", "Deaths (total)"), 
-                  selected = c("Deaths per million"),
-                  multiple = FALSE),
+      pickerInput("breeds_select", "Breeds:",   
+                  choices = breeds, 
+                  selected = c("Retrievers (Labrador)", "French Bulldogs",
+                               "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs"),
+                  multiple = TRUE,
+                  options =  list("max-options" = 3)),
       
-      pickerInput("start_date", "Plotting start date:",   
-                  choices = c("Date", "Week of 100th confirmed case", "Week of 10th death"), 
-                  options = list(`actions-box` = TRUE),
-                  selected = "Date",
-                  multiple = FALSE), 
       
       "Select outcome, regions, and plotting start date from drop-down menues to update plots. Countries with at least 1000 confirmed cases are included."
     ),
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Cumulative", plotlyOutput("country_plot_cumulative")),
-        tabPanel("New", plotlyOutput("country_plot")),
-        tabPanel("Cumulative (log10)", plotlyOutput("country_plot_cumulative_log"))
+        tabPanel("Rank", plotOutput("plot_rankings")),
+        tabPanel("New"),
       )
     )
   )
@@ -82,16 +116,14 @@ ui <- navbarPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
+  output$plot_rankings <- renderPlot({
+    p <- ggplot(data=breed_rank_data, aes(x=as.numeric(year),
+                                      y=value,
+                                      color=variable)) +
+      geom_line() +
+      geom_point() +
+      ggtitle("Top Breeds in US")
+  })
 }
 
 # Run the application 
