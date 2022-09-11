@@ -108,32 +108,68 @@ server <- function(input, output, session) {
                 aes(x=year, y=value, 
                     group=variable, 
                     color=variable)) +
-      geom_line(size=1.15) + geom_point() +
-      scale_y_discrete(limits=rev) # Reverse the order
+      geom_line(size=1) + 
+      geom_point(shape=21, size=6) +
+      theme_ipsum() +
+      scale_y_discrete(limits=rev) + # Reverse the order
+      theme_classic() 
       # theme(legend.position = 'bottom')
     p
   })
   
   output$breed_ranks_bar <- renderPlot ({
-    ggplot(data = filter(breed_rank_data, breed_rank_data$variable %in% input$breeds_select), 
+    ordered_data <- breed_rank_data[order(breed_rank_data$value),]
+    ggplot(data = filter(ordered_data, ordered_data$variable %in% input$breeds_select), 
            aes(x = year, 
-               y = fct_rev(fct_infreq(factor(value))), # Reverse the rankings from highest
+               y = value, # Reverse the rankings from highest
                fill = variable)) + 
-      # `geom_col()` uses `stat_identity()`: it leaves the data as is.
-      geom_col(position = 'dodge') + 
-      coord_flip() +
-      scale_x_discrete(limits=rev) + # Reverse the order
-      # scale_x_discrete(limits=rev) + # Reverse the year order
+      geom_col(position="dodge", width = 0.9) + 
+      # coord_flip() +
+      scale_y_discrete(limits=rev) + # Reverse the order
+      # scale_y_discrete(position = "right") +
       # scale_x_reverse() +
       labs(
         title = "Rankings through years",
         y = "Rankings",
         x = "Years"
-      ) 
-      # 
-      # geom_text(aes(label=value), 
-      #           position=position_dodge(width=0.9), 
-      #           vjust=0.55)
+      ) + 
+      theme(
+        # Set background color to white
+        panel.background = element_rect(fill = "white"),
+        # Remove tick marks by setting their length to 0
+        axis.ticks.length = unit(0, "mm"),
+        # Remove the title for both axes
+        axis.title.x = element_blank(),
+        # Only left line of the vertical axis is painted in black
+        axis.line.y.left = element_line(color = "black"),
+        # Remove labels from the vertical axis
+        axis.text.y = element_blank(),
+        # But customize labels for the horizontal axis
+        axis.text.x = element_text(family = "Econ Sans Cnd", size = 16),
+        axis.title.y = element_text(family = "Econ Sans Cnd", size = 16)
+      ) +
+      labs(
+        title = "Breed Popularity",
+        subtitle = "Breed Ranks through Year 2013-2020"
+      ) + 
+      theme(
+        plot.title = element_text(
+          family = "Econ Sans Cnd", 
+          face = "bold",
+          size = 22
+        ),
+        plot.subtitle = element_text(
+          family = "Econ Sans Cnd",
+          size = 20
+        )
+      ) +
+      geom_text(aes(label=value),
+                position=position_dodge(width=0.9),
+                colour = "black",
+                vjust = 1.5,
+                hjust = 0.7,
+                family = "Econ Sans Cnd",
+                size = 5)
   })
   
   output$caption <- renderText({
