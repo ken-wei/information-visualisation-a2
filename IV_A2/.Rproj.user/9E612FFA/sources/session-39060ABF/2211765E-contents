@@ -18,7 +18,6 @@ library(hrbrthemes)
 library(reshape)
 library(reshape2)
 library(dplyr)
-library(forcats)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
@@ -47,7 +46,7 @@ breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
 # Tab 1 : Breed Rankings
 breed_ranking_tab <- tabPanel(
   'Breed Rankings',
-  textOutput("caption")
+  plotOutput('plot')
 )
 
 # Content for Tab 2: Trait Scores
@@ -60,22 +59,14 @@ main_content <- fluidPage(
       pickerInput("breeds_select", "Breeds:",   
                   choices = breeds, 
                   selected = c("Retrievers (Labrador)", "French Bulldogs",
-                               "German Shepherd Dogs"),
+                               "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs"),
                   multiple = TRUE,
-                  options =  list("max-options" = 3)),
-      
-      pickerInput("years_select", "Years:",   
-                  choices = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
-                              "2019",  "2020"), 
-                  selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
-                               "2019",  "2020"),
-                  multiple = TRUE),
+                  options =  list("max-options" = 5)),
     ),
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Rank", plotOutput('breed_ranks_line')),
-        tabPanel("Bar", plotOutput('breed_ranks_bar'))
+        tabPanel("Rank", plotOutput('plot')),
       )
     )
   )
@@ -101,44 +92,10 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
-  output$breed_ranks_line <- renderPlot({
-    print("hello world")
-    p <- ggplot(filter(breed_rank_data, 
-                       breed_rank_data$variable %in% input$breeds_select), 
-                aes(x=year, y=value, 
-                    group=variable, 
-                    color=variable)) +
-      geom_line(size=1.15) + geom_point() +
-      scale_y_discrete(limits=rev) # Reverse the order
-      # theme(legend.position = 'bottom')
-    p
-  })
-  
-  output$breed_ranks_bar <- renderPlot ({
-    ggplot(data = filter(breed_rank_data, breed_rank_data$variable %in% input$breeds_select), 
-           aes(x = year, 
-               y = fct_rev(fct_infreq(factor(value))), # Reverse the rankings from highest
-               fill = variable)) + 
-      # `geom_col()` uses `stat_identity()`: it leaves the data as is.
-      geom_col(position = 'dodge') + 
-      coord_flip() +
-      scale_x_discrete(limits=rev) + # Reverse the order
-      # scale_x_discrete(limits=rev) + # Reverse the year order
-      # scale_x_reverse() +
-      labs(
-        title = "Rankings through years",
-        y = "Rankings",
-        x = "Years"
-      ) 
-      # 
-      # geom_text(aes(label=value), 
-      #           position=position_dodge(width=0.9), 
-      #           vjust=0.55)
-  })
-  
-  output$caption <- renderText({
-    paste("This plot represents births by state in",
-          input$year)
+  output$plot <- renderPlot({
+    p <- ggplot(filter(breed_rank_data, breed_rank_data$variable %in% breed_filter), aes(x=year, y=value, group=variable, color=variable)) + 
+      geom_line()
+    print(p)
   })
   
 }

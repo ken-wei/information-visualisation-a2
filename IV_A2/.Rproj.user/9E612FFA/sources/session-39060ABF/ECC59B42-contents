@@ -1,0 +1,81 @@
+library(shiny)
+library(ggplot2)
+
+data <- read.csv("./Births_summary.csv")
+
+##################
+# USER INTERFACE #
+##################
+
+# Tab 1: Introduction
+intro_tab <- tabPanel(
+  'Background',
+  
+  titlePanel('Population growth in Australia'),
+  p('Australia\'s population has been growing consistently since the 1830s.'),
+  p(img(src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Australia_Day_%282049745267%29.jpg/800px-Australia_Day_%282049745267%29.jpg')),
+  p('Data source: ',
+    a(href = 'https://www.abs.gov.au/statistics/people/population', 'Australian Bureau of Statistics'))
+)
+
+# Tab 2: Births
+sidebar_content <- sidebarPanel(
+  h3('Births by state'),
+  selectInput(
+    'year',
+    label = 'Year',
+    choices = c('2017'='X2017',
+                '2018'='X2018',
+                '2019'='X2019',
+                '2020'='X2020'),
+    selected = 'X2020'
+  )
+)
+
+main_content <- mainPanel(
+  plotOutput('plot_births'),
+  textOutput("caption")
+)
+
+births_tab <- tabPanel(
+  'Births',
+  titlePanel('Births'),
+  sidebarLayout(
+    sidebar_content, main_content
+  )
+)
+
+# Bring the UI together
+ui <- navbarPage(
+  'Population growth in Australia',
+  intro_tab,
+  births_tab
+)
+
+################
+# SHINY SERVER #
+################
+server <- function(input, output, session) {
+  
+  # create the plot output
+  output$plot_births <- renderPlot({
+    print("Hello World")
+    ggplot(data=data, aes_string(x='Region', y=input$year)) + 
+      geom_bar(stat='identity', width=0.8) + 
+      labs(x='Region', y=input$year)})
+  
+  output$caption <- renderText({
+    paste("This plot represents births by state in",
+          input$year)
+  })
+  
+  
+}
+
+
+#############
+# RUN SHINY #
+#############
+
+
+shinyApp(ui, server)

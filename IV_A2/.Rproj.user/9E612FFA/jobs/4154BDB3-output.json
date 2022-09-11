@@ -1,0 +1,8 @@
+[1,"Installing 'forcats' ...\r\n"]
+[1,"\r\n"]
+[2,"trying URL 'https://cran.rstudio.com/bin/windows/contrib/4.2/forcats_0.5.2.zip'\r\n"]
+[1,"package 'forcats' successfully unpacked and MD5 sums checked\r\n"]
+[1,"\r\n"]
+[1,"The downloaded binary packages are in\r\n"]
+[1,"\tC:\\Users\\kenwe\\AppData\\Local\\Temp\\RtmpYdsAw0\\downloaded_packages\r\n"]
+[2,"Content type 'application/zip' length 383046 bytes (374 KB)\r\n==================================================\r\ndownloaded 374 KB\r\n\r\n\r\n\r\n✔ Package 'forcats' successfully installed.\r\n"]
