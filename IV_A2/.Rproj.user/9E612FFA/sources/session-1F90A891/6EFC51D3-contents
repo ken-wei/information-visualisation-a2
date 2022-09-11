@@ -35,7 +35,7 @@ print(breed_rank_data$year)
 breed_rank_data <- as.data.frame(melt(breed_rank_data, id=c("year")))
 breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
                   "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs")
-p <- ggplot(filter(breed_rank_data, breed_rank_data$variable %in% breed_filter), aes(x=year, y=value, group=variable)) + 
+p <- ggplot(filter(breed_rank_data, breed_rank_data$variable %in% breed_filter), aes(x=year, y=value, group=variable, color=variable)) + 
   geom_line() 
   # theme(legend.position = "None")
 print(p)
