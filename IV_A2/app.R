@@ -71,15 +71,7 @@ main_content <- fluidPage(
                   selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
                                "2019",  "2020"),
                   multiple = TRUE),
-      
-      sliderTextInput(
-        inputId = "years_selects",
-        label = "Year range slider:",
-        choices = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
-                    "2019",  "2020"),
-        selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
-                     "2019",  "2020")
-      )
+    
     ),
     
     mainPanel(
@@ -163,16 +155,12 @@ server <- function(input, output, session) {
       scale_y_discrete(limits=rev) + # Reverse the order
       # scale_y_discrete(position = "right") +
       # scale_x_reverse() +
-      scale_color_viridis(discrete = TRUE) +
       labs(
         title = "Rankings through years",
         y = "Rankings",
         x = "Years"
       ) + 
       theme(
-        panel.grid.major.y = element_line(color = "red",
-                                          size = 0.,
-                                          linetype = 2),
         # Set background color to white
         panel.background = element_rect(fill = "white"),
         # Remove tick marks by setting their length to 0
