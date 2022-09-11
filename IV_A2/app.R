@@ -18,7 +18,8 @@ library(hrbrthemes)
 library(reshape)
 library(reshape2)
 library(dplyr)
-library(forcats)
+library(viridis)
+library(plotly)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
@@ -62,7 +63,7 @@ main_content <- fluidPage(
                   selected = c("Retrievers (Labrador)", "French Bulldogs",
                                "German Shepherd Dogs"),
                   multiple = TRUE,
-                  options =  list("max-options" = 3)),
+                  options =  list("max-options" = 5)),
       
       pickerInput("years_select", "Years:",   
                   choices = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
@@ -70,12 +71,21 @@ main_content <- fluidPage(
                   selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
                                "2019",  "2020"),
                   multiple = TRUE),
+      
+      sliderTextInput(
+        inputId = "years_selects",
+        label = "Year range slider:",
+        choices = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
+                    "2019",  "2020"),
+        selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
+                     "2019",  "2020")
+      )
     ),
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Rank", plotOutput('breed_ranks_line')),
-        tabPanel("Bar", plotOutput('breed_ranks_bar'))
+        tabPanel("Trendline", plotlyOutput('breed_ranks_line')),
+        tabPanel("Barplot", plotlyOutput('breed_ranks_bar'))
       )
     )
   )
@@ -101,38 +111,28 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
-  output$breed_ranks_line <- renderPlot({
+  output$breed_ranks_line <- renderPlotly({
     print("hello world")
-    p <- ggplot(filter(breed_rank_data, 
-                       breed_rank_data$variable %in% input$breeds_select), 
+    filtered_data <- filter(breed_rank_data, 
+                            breed_rank_data$variable %in% input$breeds_select)
+    filtered_data <- filter(filtered_data,
+                            filtered_data$year %in% input$years_select)
+    p <- ggplot(filtered_data, 
                 aes(x=year, y=value, 
                     group=variable, 
                     color=variable)) +
       geom_line(size=1) + 
-      geom_point(shape=21, size=6) +
+      geom_point(shape=21, size=3) +
       theme_ipsum() +
-      scale_y_discrete(limits=rev) + # Reverse the order
-      theme_classic() 
-      # theme(legend.position = 'bottom')
-    p
-  })
-  
-  output$breed_ranks_bar <- renderPlot ({
-    ordered_data <- breed_rank_data[order(breed_rank_data$value),]
-    ggplot(data = filter(ordered_data, ordered_data$variable %in% input$breeds_select), 
-           aes(x = year, 
-               y = value, # Reverse the rankings from highest
-               fill = variable)) + 
-      geom_col(position="dodge", width = 0.9) + 
-      # coord_flip() +
-      scale_y_discrete(limits=rev) + # Reverse the order
-      # scale_y_discrete(position = "right") +
-      # scale_x_reverse() +
+      scale_y_discrete(limits=rev) +  # Reverse the order
+      # transition_reveal(as.Date(year))
+      theme(legend.position = "top") +
+      # scale_color_viridis() +
       labs(
-        title = "Rankings through years",
+        title = "Popularity of Dog Breeds in the US through Year 2013-2020",
         y = "Rankings",
         x = "Years"
-      ) + 
+      ) +
       theme(
         # Set background color to white
         panel.background = element_rect(fill = "white"),
@@ -143,14 +143,52 @@ server <- function(input, output, session) {
         # Only left line of the vertical axis is painted in black
         axis.line.y.left = element_line(color = "black"),
         # Remove labels from the vertical axis
-        axis.text.y = element_blank(),
+        # axis.text.y = element_blank(),
+        # But customize labels for the horizontal axis
+        axis.text.x = element_text(family = "Econ Sans Cnd", size = 16),
+        axis.title.y = element_text(family = "Econ Sans Cnd", size = 16)
+      )
+    
+    ggplotly(p)
+  })
+  
+  output$breed_ranks_bar <- renderPlotly ({
+    ordered_data <- breed_rank_data[order(breed_rank_data$value),]
+    p <- ggplot(data = filter(ordered_data, ordered_data$variable %in% input$breeds_select), 
+           aes(x = year, 
+               y = value, # Reverse the rankings from highest
+               fill = variable)) + 
+      geom_col(position="dodge2", width = 0.5) + 
+      # coord_flip() +
+      scale_y_discrete(limits=rev) + # Reverse the order
+      # scale_y_discrete(position = "right") +
+      # scale_x_reverse() +
+      scale_color_viridis(discrete = TRUE) +
+      labs(
+        title = "Rankings through years",
+        y = "Rankings",
+        x = "Years"
+      ) + 
+      theme(
+        panel.grid.major.y = element_line(color = "red",
+                                          size = 0.,
+                                          linetype = 2),
+        # Set background color to white
+        panel.background = element_rect(fill = "white"),
+        # Remove tick marks by setting their length to 0
+        axis.ticks.length = unit(0, "mm"),
+        # Remove the title for both axes
+        axis.title.x = element_blank(),
+        # Only left line of the vertical axis is painted in black
+        axis.line.y.left = element_line(color = "black"),
+        # Remove labels from the vertical axis
+        # axis.text.y = element_blank(),
         # But customize labels for the horizontal axis
         axis.text.x = element_text(family = "Econ Sans Cnd", size = 16),
         axis.title.y = element_text(family = "Econ Sans Cnd", size = 16)
       ) +
       labs(
         title = "Breed Popularity",
-        subtitle = "Breed Ranks through Year 2013-2020"
       ) + 
       theme(
         plot.title = element_text(
@@ -162,18 +200,27 @@ server <- function(input, output, session) {
           family = "Econ Sans Cnd",
           size = 20
         )
-      ) +
-      geom_text(aes(label=value),
-                position=position_dodge(width=0.9),
-                colour = "black",
-                vjust = 1.5,
-                hjust = 0.7,
-                family = "Econ Sans Cnd",
-                size = 5)
+      ) 
+      # geom_text(aes(label=value),
+      #           position=position_dodge(width=1),
+      #           colour = "black",
+      #           family = "Econ Sans Cnd",
+      #           size = 3)
+    ay = list(
+      zerolinecolor = '#D3D3D3',
+      zerolinewidth = 1,
+      gridcolor = '#D3D3D3',
+      showticklabels = TRUE,
+      tickfont = list(size = 11))
+    
+    ggplotly(p) %>%
+      layout(
+        yaxis = ay
+      )
   })
   
   output$caption <- renderText({
-    paste("This plot represents births by state in",
+    paste("Dog Breeds in the US.",
           input$year)
   })
   
