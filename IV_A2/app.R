@@ -25,6 +25,7 @@ library(echarts4r)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
+breed_traits_data <- read.csv("./breed_traits.csv")
 breed_rank_data <- breed_rank_data[,-c(10:11)]
 breeds <- breed_rank_data$Breed
 years <- c("2013", "2014", "2015", "2016",
@@ -50,6 +51,7 @@ breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
 # Tab 1 : Breed Rankings
 breed_ranking_tab <- tabPanel(
   'Breed Rankings',
+  # setBackgroundColor("ghostwhite"),
   fluidPage(
     "Dog Breeds Comparison",
     
@@ -59,14 +61,12 @@ breed_ranking_tab <- tabPanel(
              # "Fluid 12",
              fluidRow(
                column(style = "text-align: center;
-                      border-right:1px solid grey;",
+                      border-right:1px solid lightgrey;",
                       6,
-                      "Fluid 6",
                       pickerInput("breed_select", "Breeds:",
                                   choices = breeds,
                                   width = '100%',
-                                  selected = c("Retrievers (Labrador)", "French Bulldogs",
-                                                 "German Shepherd Dogs"),
+                                  selected = "German Shepherd Dogs",
                                   multiple = FALSE),
                       tabsetPanel(
                         tabPanel("Family Life", echarts4rOutput("breed_traits")),
@@ -78,12 +78,10 @@ breed_ranking_tab <- tabPanel(
                ),
                column(style = "text-align: center;",
                       width = 6,
-                      "Fluid 6",
                       pickerInput("breed_select_compare", "Breeds:",   
                                   choices = breeds,
                                   width = '100%',
-                                  selected = c("Retrievers (Labrador)", "French Bulldogs",
-                                               "German Shepherd Dogs"),
+                                  selected = "Retrievers (Labrador)",
                                   multiple = FALSE),
                       tabsetPanel(
                         tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
@@ -144,7 +142,7 @@ ui <- navbarPage(
   'Dog Breed',
   traits_tab,
   breed_ranking_tab,
-  setBackgroundColor("ghostwhite")
+  # setBackgroundColor("lightgrey")
 )
 
 ################
@@ -256,23 +254,40 @@ server <- function(input, output, session) {
           input$year)
   })
   
+  # Reactive expression for the first breed selection choice
+  breed_selected <- reactive({
+    breed_traits_data %>% filter(breed_traits_data$Breed == input$breed_select)
+  })
+  
+  # Reactive expression for the second breed selection choice
+  breed_compare_selected <- reactive({
+    breed_traits_data %>% 
+      filter(breed_traits_data$Breed == input$breed_select_compare)
+  })
+  
   output$breed_traits <- renderEcharts4r({
-
-    # skills() %>%
-    #   e_charts(x) %>%
-    #   e_radar(y, name = paste0(selected(), " Stats")) %>%
-    #   e_tooltip(trigger = "item")
+    # print(input$breed_select)
+    # print(breed_traits_data$Breed)
+    df1 <- as.data.frame(breed_selected())
+    # print(tail(df1, n = 1))
+    # print(colnames(df1)[-1])
+    # print(df1)
+    df1 <- df1[, c("Affectionate.With.Family", 
+                  "Good.With.Young.Children", 
+                  "Good.With.Other.Dogs")]
     
+    print(colnames(df1))
+    values <- tail(df1, 1)
+    print(df1["Affectionate.With.Family"][1])
+
     df <- data.frame(
-      x = LETTERS[1:5],
-      y = runif(5, 1, 5),
-      z = runif(5, 3, 7)
+      x = colnames(df1),
+      y = c(1,2,3)
     )
     
     df |>
       e_charts(x) |>
-      e_radar(y, max = 7) |>
-      e_radar(z) |>
+      e_radar(y, max = 5) |>
       e_tooltip(trigger = "item")
   })
   
@@ -294,51 +309,6 @@ server <- function(input, output, session) {
       e_radar(y, max = 7) |>
       e_radar(z) |>
       e_tooltip(trigger = "item")
-  })
-  
-  output$traits <- renderUI({
-    if (input$show_traits) {
-      tagList(
-        fluidRow(
-          column(width = 4, uiOutput("pokeHappy")),
-          column(width = 4, uiOutput("pokeHeight")),
-          column(width = 4, uiOutput("pokeWeight"))
-        ),
-        fluidRow(
-          column(width = 4, uiOutput("baseXp")),
-          column(width = 4, uiOutput("pokeGrowth")),
-          column(width = 4, uiOutput("pokeCapture"))
-        )
-      )
-    }
-  })
-  
-  output$traitsCard <- renderUI({
-  
-    tablerCard(
-      title = " Stats",
-      options = tagList(
-        shinyWidgets::prettySwitch(
-          inputId = "dogTraits",
-          label = "Display Basic Stats?",
-          value = TRUE,
-          status = "default",
-          slim = TRUE,
-          fill = FALSE,
-          bigger = TRUE,
-          inline = FALSE
-        )
-      ),
-      footer = NULL,
-      status = "info",
-      statusSide = "left",
-      collapsible = FALSE,
-      closable = FALSE,
-      zoomable = FALSE,
-      overflow = FALSE,
-      fluidRow(column(6, echarts4rOutput("breed_traits"))),
-      fluidRow(column(6, echarts4rOutput("breed_traits_compare")))
-    )
   })
   
   output$distPlot <- renderPlot({
