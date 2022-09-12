@@ -9,7 +9,7 @@
 
 install.packages(c("reshape2", "shiny", "shinyWidgets", "ggplot2",
                    "gganimate", "hrbrthemes", "reshape", "reshape2",
-                   "dplyr")) 
+                   "dplyr", "tablerDash", "echarts4r")) 
 library(shiny)
 library(shinyWidgets)
 library(ggplot2)
@@ -20,6 +20,8 @@ library(reshape2)
 library(dplyr)
 library(viridis)
 library(plotly)
+library(tablerDash)
+library(echarts4r)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
@@ -48,8 +50,55 @@ breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
 # Tab 1 : Breed Rankings
 breed_ranking_tab <- tabPanel(
   'Breed Rankings',
-  textOutput("caption")
+  fluidPage(
+    "Dog Breeds Comparison",
+    
+    fluidRow(
+      style = "background: white;",
+      column(12,
+             # "Fluid 12",
+             fluidRow(
+               column(style = "text-align: center;
+                      border-right:1px solid grey;",
+                      6,
+                      "Fluid 6",
+                      pickerInput("breed_select", "Breeds:",
+                                  choices = breeds,
+                                  width = '100%',
+                                  selected = c("Retrievers (Labrador)", "French Bulldogs",
+                                                 "German Shepherd Dogs"),
+                                  multiple = FALSE),
+                      tabsetPanel(
+                        tabPanel("Family Life", echarts4rOutput("breed_traits")),
+                        tabPanel("Physical", plotlyOutput('')),
+                        tabPanel("Social", plotlyOutput('')),
+                        tabPanel("Personality", plotlyOutput('')),
+                        tabPanel("All", plotlyOutput(''))
+                      )
+               ),
+               column(style = "text-align: center;",
+                      width = 6,
+                      "Fluid 6",
+                      pickerInput("breed_select_compare", "Breeds:",   
+                                  choices = breeds,
+                                  width = '100%',
+                                  selected = c("Retrievers (Labrador)", "French Bulldogs",
+                                               "German Shepherd Dogs"),
+                                  multiple = FALSE),
+                      tabsetPanel(
+                        tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
+                        tabPanel("Barplot", plotlyOutput(''))
+                      )
+               )
+             )
+      )
+    )
+  )
+  # textOutput("caption"),
+  # uiOutput("traitsCard")
 )
+
+
 
 # Content for Tab 2: Trait Scores
 main_content <- fluidPage(
@@ -93,8 +142,9 @@ traits_tab <- tabPanel(
 # Define UI for application that draws a histogram
 ui <- navbarPage(
   'Dog Breed',
+  traits_tab,
   breed_ranking_tab,
-  traits_tab
+  setBackgroundColor("ghostwhite")
 )
 
 ################
@@ -169,8 +219,6 @@ server <- function(input, output, session) {
         axis.title.x = element_blank(),
         # Only left line of the vertical axis is painted in black
         axis.line.y.left = element_line(color = "black"),
-        # Remove labels from the vertical axis
-        # axis.text.y = element_blank(),
         # But customize labels for the horizontal axis
         axis.text.x = element_text(family = "Econ Sans Cnd", size = 16),
         axis.title.y = element_text(family = "Econ Sans Cnd", size = 16)
@@ -189,11 +237,7 @@ server <- function(input, output, session) {
           size = 20
         )
       ) 
-      # geom_text(aes(label=value),
-      #           position=position_dodge(width=1),
-      #           colour = "black",
-      #           family = "Econ Sans Cnd",
-      #           size = 3)
+
     ay = list(
       zerolinecolor = '#D3D3D3',
       zerolinewidth = 1,
@@ -210,6 +254,95 @@ server <- function(input, output, session) {
   output$caption <- renderText({
     paste("Dog Breeds in the US.",
           input$year)
+  })
+  
+  output$breed_traits <- renderEcharts4r({
+
+    # skills() %>%
+    #   e_charts(x) %>%
+    #   e_radar(y, name = paste0(selected(), " Stats")) %>%
+    #   e_tooltip(trigger = "item")
+    
+    df <- data.frame(
+      x = LETTERS[1:5],
+      y = runif(5, 1, 5),
+      z = runif(5, 3, 7)
+    )
+    
+    df |>
+      e_charts(x) |>
+      e_radar(y, max = 7) |>
+      e_radar(z) |>
+      e_tooltip(trigger = "item")
+  })
+  
+  output$breed_traits_compare <- renderEcharts4r({
+    
+    # skills() %>%
+    #   e_charts(x) %>%
+    #   e_radar(y, name = paste0(selected(), " Stats")) %>%
+    #   e_tooltip(trigger = "item")
+    
+    df <- data.frame(
+      x = LETTERS[1:5],
+      y = runif(5, 1, 5),
+      z = runif(5, 3, 7)
+    )
+    
+    df |>
+      e_charts(x) |>
+      e_radar(y, max = 7) |>
+      e_radar(z) |>
+      e_tooltip(trigger = "item")
+  })
+  
+  output$traits <- renderUI({
+    if (input$show_traits) {
+      tagList(
+        fluidRow(
+          column(width = 4, uiOutput("pokeHappy")),
+          column(width = 4, uiOutput("pokeHeight")),
+          column(width = 4, uiOutput("pokeWeight"))
+        ),
+        fluidRow(
+          column(width = 4, uiOutput("baseXp")),
+          column(width = 4, uiOutput("pokeGrowth")),
+          column(width = 4, uiOutput("pokeCapture"))
+        )
+      )
+    }
+  })
+  
+  output$traitsCard <- renderUI({
+  
+    tablerCard(
+      title = " Stats",
+      options = tagList(
+        shinyWidgets::prettySwitch(
+          inputId = "dogTraits",
+          label = "Display Basic Stats?",
+          value = TRUE,
+          status = "default",
+          slim = TRUE,
+          fill = FALSE,
+          bigger = TRUE,
+          inline = FALSE
+        )
+      ),
+      footer = NULL,
+      status = "info",
+      statusSide = "left",
+      collapsible = FALSE,
+      closable = FALSE,
+      zoomable = FALSE,
+      overflow = FALSE,
+      fluidRow(column(6, echarts4rOutput("breed_traits"))),
+      fluidRow(column(6, echarts4rOutput("breed_traits_compare")))
+    )
+  })
+  
+  output$distPlot <- renderPlot({
+    hist(rnorm(input$obs))
   })
   
 }
