@@ -44,6 +44,18 @@ breed_rank_data <- as.data.frame(melt(breed_rank_data, id=c("year")))
 breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
                   "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs")
 
+traits_radar_func <- function(dataframe) {
+  df <- data.frame(
+    x = colnames(dataframe),
+    y = as.numeric(dataframe[1,]) # Convert dataframe to single
+  )
+  
+  df |>
+    e_charts(x) |>
+    e_radar(y, max = 5) |>
+    e_tooltip(trigger = "item")
+} 
+
 ##################
 # USER INTERFACE #
 ##################
@@ -70,10 +82,10 @@ breed_ranking_tab <- tabPanel(
                                   multiple = FALSE),
                       tabsetPanel(
                         tabPanel("Family Life", echarts4rOutput("breed_traits")),
-                        tabPanel("Physical", plotlyOutput('')),
-                        tabPanel("Social", plotlyOutput('')),
-                        tabPanel("Personality", plotlyOutput('')),
-                        tabPanel("All", plotlyOutput(''))
+                        tabPanel("Physical", echarts4rOutput('breed_traits_physical')),
+                        tabPanel("Social", echarts4rOutput('breed_traits_social')),
+                        tabPanel("Personality", echarts4rOutput('breed_traits_personality')),
+                        tabPanel("All", echarts4rOutput('breed_traits_all'))
                       )
                ),
                column(style = "text-align: center;",
@@ -140,8 +152,8 @@ traits_tab <- tabPanel(
 # Define UI for application that draws a histogram
 ui <- navbarPage(
   'Dog Breed',
-  traits_tab,
   breed_ranking_tab,
+  traits_tab,
   # setBackgroundColor("lightgrey")
 )
 
@@ -275,21 +287,74 @@ server <- function(input, output, session) {
     df1 <- df1[, c("Affectionate.With.Family", 
                   "Good.With.Young.Children", 
                   "Good.With.Other.Dogs")]
-    
+    c("Shedding.Level", "Coat.Grooming.Frequency", "Drooling.Level")
+    c("Openness.To.Strangers", "Playfulness.Level", "Watchdog/Protective.Nature",
+      "Adaptability.Level")
+    c("Trainability.Level","Energy.Level","Barking.Level",
+      "MentalStimulationNeeds")
     print(colnames(df1))
     values <- tail(df1, 1)
     print(df1["Affectionate.With.Family"][1])
-
-    df <- data.frame(
-      x = colnames(df1),
-      y = as.numeric(df1[1,]) # Convert dataframe to single vector
-    )
     
-    df |>
-      e_charts(x) |>
-      e_radar(y, max = 5) |>
-      e_tooltip(trigger = "item")
+    traits_radar_func(dataframe = df1)
+    # df <- data.frame(
+    #   x = colnames(df1),
+    #   y = as.numeric(df1[1,]) # Convert dataframe to single
+    # )
+    # 
+    # df |>
+    #   e_charts(x) |>
+    #   e_radar(y, max = 5) |>
+    #   e_tooltip(trigger = "item")
   })
+  
+  output$breed_traits_physical <- renderEcharts4r({
+    df1 <- as.data.frame(breed_selected()) # reactive breed select input
+    df1 <- df1[, c("Shedding.Level", "Coat.Grooming.Frequency", 
+                   "Drooling.Level")]
+    c("Shedding.Level", "Coat.Grooming.Frequency", "Drooling.Level")
+    c("Openness.To.Strangers", "Playfulness.Level", "Watchdog/Protective.Nature",
+      "Adaptability.Level")
+    c("Trainability.Level","Energy.Level","Barking.Level",
+      "MentalStimulationNeeds")
+
+    traits_radar_func(dataframe = df1)
+  })
+  
+  output$breed_traits_social <- renderEcharts4r({
+    df1 <- as.data.frame(breed_selected()) # reactive breed select input
+    print(df1)
+    df1 <- df1[, c("Openness.To.Strangers", "Playfulness.Level", 
+                   "Watchdog.Protective.Nature",
+                   "Adaptability.Level")]
+    c("Trainability.Level","Energy.Level","Barking.Level",
+      "MentalStimulationNeeds")
+    
+    traits_radar_func(dataframe = df1)
+  })
+  
+  output$breed_traits_personality <- renderEcharts4r({
+    df1 <- as.data.frame(breed_selected()) # reactive breed select input
+    print(colnames(df1))
+    df1 <- df1[, c("Trainability.Level","Energy.Level","Barking.Level",
+                   "Mental.Stimulation.Needs")]
+    traits_radar_func(dataframe = df1)
+  })
+  
+  output$breed_traits_all <- renderEcharts4r({
+    df1 <- as.data.frame(breed_selected()) # reactive breed select input
+    print(colnames(df1))
+    df1 <- df1[, c("Affectionate.With.Family", 
+                   "Good.With.Young.Children", 
+                   "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency", 
+                   "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level", 
+                   "Watchdog.Protective.Nature",
+                   "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
+                   "Mental.Stimulation.Needs")]
+    traits_radar_func(dataframe = df1)
+    
+  })
+
   
   output$breed_traits_compare <- renderEcharts4r({
     
@@ -304,12 +369,9 @@ server <- function(input, output, session) {
       z = runif(5, 3, 7)
     )
     
-    df |>
-      e_charts(x) |>
-      e_radar(y, max = 7) |>
-      e_radar(z) |>
-      e_tooltip(trigger = "item")
+    traits_radar_func(dataframe = df)
   })
+  
   
   output$distPlot <- renderPlot({
     hist(rnorm(input$obs))
