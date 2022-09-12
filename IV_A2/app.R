@@ -282,7 +282,7 @@ server <- function(input, output, session) {
 
     df <- data.frame(
       x = colnames(df1),
-      y = c(1,2,3)
+      y = as.numeric(df1[1,]) # Convert dataframe to single vector
     )
     
     df |>
