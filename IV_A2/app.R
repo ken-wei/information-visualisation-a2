@@ -48,7 +48,7 @@ breed_rank_data <- as.data.frame(melt(breed_rank_data, id=c("year")))
 breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
                   "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs")
 
-traits_radar_func <- function(dataframe) {
+traits_radar_func <- function(dataframe, string) {
   
   print("inside traits function")
   df <- data.frame(
@@ -58,17 +58,22 @@ traits_radar_func <- function(dataframe) {
   
   df |>
     e_charts(x) |>
-    e_radar(y, max = 5) |>
-    e_tooltip(trigger = "item")
-} 
+    e_radar(y, max = 5, name = "Family Life Traits") |>
+    e_tooltip(trigger = "item") |>
+    e_legend(right = 0) 
+}
+
+traits_slider_func <- function(dataframe, string) {
+  
+}
 
 ##################
 # USER INTERFACE #
 ##################
 
 # Tab 1 : Breed Rankings
-breed_ranking_tab <- tabPanel(
-  'Breed Rankings',
+breed_compare_tab <- tabPanel(
+  'Breeds Comparison',
   # setBackgroundColor("ghostwhite"),
   width = 10,
   fluidPage(
@@ -94,6 +99,9 @@ breed_ranking_tab <- tabPanel(
                                   width = '100%',
                                   selected = "German Shepherd Dogs",
                                   multiple = FALSE),
+                      switchInput(inputId = "id", value = FALSE, 
+                                  onLabel = "Radar", offLabel = "Score"
+                      ),
                       tabsetPanel(
                         tabPanel("Family Life", echarts4rOutput("breed_traits")),
                         tabPanel("Physical", echarts4rOutput('breed_traits_physical')),
@@ -108,8 +116,8 @@ breed_ranking_tab <- tabPanel(
                                   choices = breeds,
                                   width = '100%',
                                   selected = "Retrievers (Labrador)",
-                                  multiple = FALSE),
-                      setSliderColor(c("DeepSkyBlue"), c(1)),
+                                  multiple = FALSE,),
+                      setSliderColor(rep(c("DeepSkyBlue"), each=50), c(1:50)),
                       chooseSliderSkin("Flat"),
                       tags$head(
                         # Note the wrapping of the string in HTML()
@@ -120,16 +128,16 @@ breed_ranking_tab <- tabPanel(
                       }")),
                       ),
                       shinyjs::disabled(sliderInput("obs", "Good with Young Children:",
-                                                    
-                                  min = 0, max = 5, value = 3, ticks = FALSE
+                                  min = 0, max = 5, value = 3, ticks = FALSE,
+                                  width = '45%'
                       )),
                       bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
                                 options = NULL),
-                      shinyjs::disabled(sliderInput("obs", "Good with Young Children:",
+                      shinyjs::disabled(sliderInput("obs-1", "Good with Young Children:",
                                                     
                                                     min = 0, max = 5, value = 3, ticks = FALSE
                       )),
-                      bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
+                      bsTooltip("obs-1", "HoverOnMe", placement = "bottom", trigger = "hover",
                                 options = NULL),
                       tabsetPanel(
                         # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
@@ -189,7 +197,7 @@ traits_tab <- tabPanel(
 # Define UI for application that draws a histogram
 ui <- navbarPage(
   'Dog Breed',
-  breed_ranking_tab,
+  breed_compare_tab,
   traits_tab,
   theme = shinytheme("paper")
   # setBackgroundColor("lightgrey")
