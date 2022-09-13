@@ -126,19 +126,29 @@ breed_compare_tab <- tabPanel(
     ),
     fluidRow(
       style = "background: white;",
+      setSliderColor(rep(c("DodgerBlue"), each=50), c(1:50)),
+      chooseSliderSkin("Flat"),
+      tags$head(
+        # Note the wrapping of the string in HTML()
+        tags$style(HTML("
+                      /* Change opacity of the traits scores */
+                      .disabled span {
+                        opacity: 0.9;
+                      }"))
+      ),
       column(12,
              # "Fluid 12",
              fluidRow(
                column(style = "text-align: center;
                       border-right:1px solid lightgrey;",
-                      6,
+                      width = 4, offset = 2,
                       pickerInput("breed_select", h5("Breed Selection:"),
                                   choices = breeds,
                                   width = '100%',
                                   selected = "German Shepherd Dogs",
                                   multiple = FALSE),
-                      switchInput(inputId = "id", value = FALSE, 
-                                  onLabel = "Radar", offLabel = "Score"
+                      switchInput(inputId = "radar_toggle", value = TRUE, 
+                                  onLabel = "Radar", offLabel = "Score", width = '100%'
                       ),
                       tabsetPanel(
                         tabPanel("Family Life", echarts4rOutput("breed_traits")),
@@ -149,23 +159,15 @@ breed_compare_tab <- tabPanel(
                       )
                ),
                column(style = "text-align: center;",
-                      width = 6,
+                      width = 4,
                       pickerInput("breed_select_compare", h5("Breed Selection:"),   
                                   choices = breeds,
                                   width = '100%',
                                   selected = "Retrievers (Labrador)",
                                   multiple = FALSE,),
-                      setSliderColor(rep(c("DeepSkyBlue"), each=50), c(1:50)),
-                      chooseSliderSkin("Flat"),
-                      tags$head(
-                        # Note the wrapping of the string in HTML()
-                        tags$style(HTML("
-                      /* Change opacity of the traits scores */
-                      .disabled span {
-                        opacity: 0.9;
-                      }")),
+                      switchInput(inputId = "id", value = FALSE, 
+                                  onLabel = "Radar", offLabel = "Score", width = '100%'
                       ),
-                      
                       tabsetPanel(
                         # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
                         tabPanel("Family Life", uiOutput('family')),
@@ -343,6 +345,13 @@ server <- function(input, output, session) {
           input$year)
   })
   
+  # Change visualisation (Radar Plot and Slider visualisation)
+  radar_or_slider <- reactiveVal(TRUE)
+  
+  observeEvent(input$radar_toggle, {
+    # Do something
+  })
+  
   # Reactive expression for the first breed selection choice
   breed_selected <- reactive({
     breed_traits_data %>% filter(breed_traits_data$Breed == input$breed_select)
@@ -450,8 +459,8 @@ server <- function(input, output, session) {
       v[[i]] <- tagList(
         shinyjs::disabled(
           sliderInput(traits_id[i], traits_list[i],
-                      min = 0, max = 5, value = values[i], ticks = FALSE,
-                      width = '45%'
+                      min = 0, max = 5, value = values[i], ticks = TRUE,
+                      width = '100%'
           )),
         bsTooltip(traits_id[i], "HoverOnMe", placement = "bottom", trigger = "hover",
                   options = NULL)
