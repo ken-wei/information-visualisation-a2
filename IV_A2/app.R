@@ -165,10 +165,14 @@ breed_compare_tab <- tabPanel(
                         opacity: 0.9;
                       }")),
                       ),
-                      uiOutput('family'),
+                      
                       tabsetPanel(
                         # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
-                        # tabPanel("Barplot", plotlyOutput(''))
+                        tabPanel("Family Life", uiOutput('family')),
+                        tabPanel("Physical", uiOutput('physical')),
+                        tabPanel("Social", uiOutput('social')),
+                        tabPanel("Personality", uiOutput('personality')),
+                        tabPanel("All", uiOutput('all')),
                       )
                )
              )
@@ -439,12 +443,13 @@ server <- function(input, output, session) {
     traits_radar_func(dataframe = df)
   })
   
+  # Helper function to create a set of slider + hover tooltip
   slider_generate <- function(traits_list, traits_id, values) {
     v <- list()
     for (i in 1:length(traits_list)){
       v[[i]] <- tagList(
         shinyjs::disabled(
-          sliderInput(traits_id[i], "Good with Young Children:",
+          sliderInput(traits_id[i], traits_list[i],
                       min = 0, max = 5, value = values[i], ticks = FALSE,
                       width = '45%'
           )),
@@ -457,11 +462,39 @@ server <- function(input, output, session) {
   
   # Render trait scores
   output$family <- renderUI({
-    df1 <- as.data.frame(breed_selected()) # reactive breed select input
-    df1 <- df1[, traits_family]
-    values <- as.numeric(df1[1,])
-    
+    df <- as.data.frame(breed_selected())[, traits_family] 
+    values <- as.numeric(df[1,])
     slider_generate(traits_family, c("fm-1","fm-2","fm-3"), values)
+  })
+  
+  # Render trait scores
+  output$physical <- renderUI({
+    df <- as.data.frame(breed_selected())[, traits_physical] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_physical, c("phy-1","phy-2","phy-3"), values)
+  })
+  
+  # Render trait scores
+  output$social <- renderUI({
+    df <- as.data.frame(breed_selected())[, traits_social] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_social, c("sc-1","sc-2","sc-3","sc-4"), values)
+  })
+  
+  # Render trait scores
+  output$personality <- renderUI({
+    df <- as.data.frame(breed_selected())[, traits_personality] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_personality, c("per-1","per-2","per-3","per-4"), values)
+  })
+  
+  # Render trait scores for all
+  output$all <- renderUI({
+    df <- as.data.frame(breed_selected())[, traits_all] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_all, 
+                    c("al-1","al-2","al-3","al-4","al-5","al-6","al-7",
+                "al-8","al-9","al-10","al-11","al-12","al-13","al-14"), values)
   })
   
   
