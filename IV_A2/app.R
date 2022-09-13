@@ -46,8 +46,30 @@ breed_rank_data$year <- c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
                          "2019",  "2020")
 breed_rank_data <- as.data.frame(melt(breed_rank_data, id=c("year")))
 breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
-                  "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs")
+                "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs")
 
+###########################
+# Traits Sections for data#
+###########################
+
+traits_all <- c("Affectionate.With.Family", 
+                "Good.With.Young.Children", 
+                "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency", 
+                "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level", 
+                "Watchdog.Protective.Nature",
+                "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
+                "Mental.Stimulation.Needs")
+traits_family <- c("Affectionate.With.Family", "Good.With.Young.Children", 
+                   "Good.With.Other.Dogs")
+traits_physical <- c("Shedding.Level", "Coat.Grooming.Frequency", 
+                     "Drooling.Level")
+traits_social <- c("Openness.To.Strangers", "Playfulness.Level", 
+                   "Watchdog.Protective.Nature",
+                   "Adaptability.Level")
+traits_personality <- c("Trainability.Level","Energy.Level","Barking.Level",
+                        "Mental.Stimulation.Needs")
+
+# Radar plot function for each traits of different categories
 traits_radar_func <- function(dataframe, string) {
   
   print("inside traits function")
@@ -63,8 +85,24 @@ traits_radar_func <- function(dataframe, string) {
     e_legend(right = 0) 
 }
 
-traits_slider_func <- function(dataframe, string) {
-  
+traits_slider_func <- function(traits_id, traits, traits_score) {
+  fluidRow(
+    column(12,
+      shinyjs::disabled(
+        sliderInput("obs", "Good with Young Children:",
+                    min = 0, max = 5, value = 3, ticks = FALSE,
+                    width = '45%'
+        )),
+      bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
+                options = NULL),
+      shinyjs::disabled(sliderInput("obs-1", "Good with Young Children:",
+                  min = 0, max = 5, value = 3, ticks = FALSE
+      )),
+      bsTooltip("obs-1", "HoverOnMe", placement = "bottom", trigger = "hover",
+                options = NULL)
+    )
+    
+  )
 }
 
 ##################
@@ -127,18 +165,7 @@ breed_compare_tab <- tabPanel(
                         opacity: 0.9;
                       }")),
                       ),
-                      shinyjs::disabled(sliderInput("obs", "Good with Young Children:",
-                                  min = 0, max = 5, value = 3, ticks = FALSE,
-                                  width = '45%'
-                      )),
-                      bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
-                                options = NULL),
-                      shinyjs::disabled(sliderInput("obs-1", "Good with Young Children:",
-                                                    
-                                                    min = 0, max = 5, value = 3, ticks = FALSE
-                      )),
-                      bsTooltip("obs-1", "HoverOnMe", placement = "bottom", trigger = "hover",
-                                options = NULL),
+                      traits_slider_func(),
                       tabsetPanel(
                         # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
                         # tabPanel("Barplot", plotlyOutput(''))
@@ -403,12 +430,6 @@ server <- function(input, output, session) {
 
   
   output$breed_traits_compare <- renderEcharts4r({
-    
-    # skills() %>%
-    #   e_charts(x) %>%
-    #   e_radar(y, name = paste0(selected(), " Stats")) %>%
-    #   e_tooltip(trigger = "item")
-    
     df <- data.frame(
       x = LETTERS[1:5],
       y = runif(5, 1, 5),
@@ -418,6 +439,37 @@ server <- function(input, output, session) {
     traits_radar_func(dataframe = df)
   })
   
+  # Render trait scores
+  # output$family <- renderUi({
+    # df1 <- as.data.frame(breed_selected()) # reactive breed select input
+    # df1 <- df1[, c("Affectionate.With.Family",
+    #                "Good.With.Young.Children",
+    #                "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency",
+    #                "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level",
+    #                "Watchdog.Protective.Nature",
+    #                "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
+    #                "Mental.Stimulation.Needs")]
+    # traits <- c("Affectionate.With.Family",
+    #                  "Good.With.Young.Children",
+    #                  "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency",
+    #                  "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level",
+    #                  "Watchdog.Protective.Nature",
+    #                  "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
+    #                  "Mental.Stimulation.Needs")
+    # values <- as.numeric(df1[1,])
+    # shinyjs::disabled(sliderInput("fm-1", traits[1],min = 0,max = 5,
+    #                 value = values[1],ticks = FALSE,width = '45%'))
+    # bsTooltip("fm-1", "HoverOnMe", placement = "bottom", trigger = "hover",
+    #             options = NULL)
+    # shinyjs::disabled(sliderInput("fm-2", traits[2],min = 0,max = 5,
+    #                               value = values[2],ticks = FALSE,width = '45%'))
+    # bsTooltip("fm-2", "HoverOnMe", placement = "bottom", trigger = "hover",
+    #           options = NULL)
+    # shinyjs::disabled(sliderInput("fm-3", traits[3],min = 0,max = 5,
+    #                               value = values[3],ticks = FALSE,width = '45%'))
+    # bsTooltip("fm-3", "HoverOnMe", placement = "bottom", trigger = "hover",
+    #           options = NULL)
+  # })
   
   output$distPlot <- renderPlot({
     hist(rnorm(input$obs))
