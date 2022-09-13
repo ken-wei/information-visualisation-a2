@@ -165,7 +165,7 @@ breed_compare_tab <- tabPanel(
                         opacity: 0.9;
                       }")),
                       ),
-                      traits_slider_func(),
+                      uiOutput('family'),
                       tabsetPanel(
                         # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
                         # tabPanel("Barplot", plotlyOutput(''))
@@ -439,37 +439,31 @@ server <- function(input, output, session) {
     traits_radar_func(dataframe = df)
   })
   
+  slider_generate <- function(traits_list, traits_id, values) {
+    v <- list()
+    for (i in 1:length(traits_list)){
+      v[[i]] <- tagList(
+        shinyjs::disabled(
+          sliderInput(traits_id[i], "Good with Young Children:",
+                      min = 0, max = 5, value = values[i], ticks = FALSE,
+                      width = '45%'
+          )),
+        bsTooltip(traits_id[i], "HoverOnMe", placement = "bottom", trigger = "hover",
+                  options = NULL)
+      )
+    }
+    return(v)
+  }
+  
   # Render trait scores
-  # output$family <- renderUi({
-    # df1 <- as.data.frame(breed_selected()) # reactive breed select input
-    # df1 <- df1[, c("Affectionate.With.Family",
-    #                "Good.With.Young.Children",
-    #                "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency",
-    #                "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level",
-    #                "Watchdog.Protective.Nature",
-    #                "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
-    #                "Mental.Stimulation.Needs")]
-    # traits <- c("Affectionate.With.Family",
-    #                  "Good.With.Young.Children",
-    #                  "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency",
-    #                  "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level",
-    #                  "Watchdog.Protective.Nature",
-    #                  "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
-    #                  "Mental.Stimulation.Needs")
-    # values <- as.numeric(df1[1,])
-    # shinyjs::disabled(sliderInput("fm-1", traits[1],min = 0,max = 5,
-    #                 value = values[1],ticks = FALSE,width = '45%'))
-    # bsTooltip("fm-1", "HoverOnMe", placement = "bottom", trigger = "hover",
-    #             options = NULL)
-    # shinyjs::disabled(sliderInput("fm-2", traits[2],min = 0,max = 5,
-    #                               value = values[2],ticks = FALSE,width = '45%'))
-    # bsTooltip("fm-2", "HoverOnMe", placement = "bottom", trigger = "hover",
-    #           options = NULL)
-    # shinyjs::disabled(sliderInput("fm-3", traits[3],min = 0,max = 5,
-    #                               value = values[3],ticks = FALSE,width = '45%'))
-    # bsTooltip("fm-3", "HoverOnMe", placement = "bottom", trigger = "hover",
-    #           options = NULL)
-  # })
+  output$family <- renderUI({
+    df1 <- as.data.frame(breed_selected()) # reactive breed select input
+    df1 <- df1[, traits_family]
+    values <- as.numeric(df1[1,])
+    
+    slider_generate(traits_family, c("fm-1","fm-2","fm-3"), values)
+  })
+  
   
   output$distPlot <- renderPlot({
     hist(rnorm(input$obs))
