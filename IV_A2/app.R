@@ -151,10 +151,10 @@ breed_compare_tab <- tabPanel(
                                   onLabel = "Radar", offLabel = "Score", width = '100%'
                       ),
                       tabsetPanel(
-                        tabPanel("Family Life", echarts4rOutput("breed_traits")),
-                        tabPanel("Physical", echarts4rOutput('breed_traits_physical')),
-                        tabPanel("Social", echarts4rOutput('breed_traits_social')),
-                        tabPanel("Personality", echarts4rOutput('breed_traits_personality')),
+                        tabPanel("Family Life", uiOutput("breed_traits_family_fc")),
+                        tabPanel("Physical", uiOutput("breed_traits_physical_fc")),
+                        tabPanel("Social", uiOutput('breed_traits_social_fc')),
+                        tabPanel("Personality", uiOutput('breed_traits_personality_fc')),
                         tabPanel("All", echarts4rOutput('breed_traits_all'))
                       )
                ),
@@ -170,10 +170,10 @@ breed_compare_tab <- tabPanel(
                       ),
                       tabsetPanel(
                         # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
-                        tabPanel("Family Life", uiOutput('family')),
-                        tabPanel("Physical", uiOutput('physical')),
-                        tabPanel("Social", uiOutput('social')),
-                        tabPanel("Personality", uiOutput('personality')),
+                        # tabPanel("Family Life", uiOutput('family')),
+                        # tabPanel("Physical", uiOutput('physical')),
+                        # tabPanel("Social", uiOutput('social')),
+                        # tabPanel("Personality", uiOutput('personality')),
                         tabPanel("All", uiOutput('all')),
                       )
                )
@@ -348,8 +348,47 @@ server <- function(input, output, session) {
   # Change visualisation (Radar Plot and Slider visualisation)
   radar_or_slider <- reactiveVal(TRUE)
   
+  # Observe the event for radar toggle button (First Choice)
   observeEvent(input$radar_toggle, {
     # Do something
+    print(radar_or_slider())
+    radar_or_slider(!radar_or_slider())
+  })
+  
+  # First choice of breed for physical 
+  output$breed_traits_family_fc <- renderUI({
+    if (radar_or_slider()) {
+      uiOutput('family')
+    } else {
+      echarts4rOutput('breed_traits')
+    }
+  })
+  
+  # First choice of breed for physical 
+  output$breed_traits_physical_fc <- renderUI({
+    if (radar_or_slider()) {
+      uiOutput('physical')
+    } else {
+      echarts4rOutput('breed_traits_physical')
+    }
+  })
+  
+  # First choice of breed for social 
+  output$breed_traits_social_fc <- renderUI({
+    if (radar_or_slider()) {
+      uiOutput('social')
+    } else {
+      echarts4rOutput('breed_traits_social')
+    }
+  })
+  
+  # First choice of breed for personality 
+  output$breed_traits_personality_fc <- renderUI({
+    if (radar_or_slider()) {
+      uiOutput('personality')
+    } else {
+      echarts4rOutput('breed_traits_personality')
+    }
   })
   
   # Reactive expression for the first breed selection choice
@@ -398,11 +437,6 @@ server <- function(input, output, session) {
     df1 <- as.data.frame(breed_selected()) # reactive breed select input
     df1 <- df1[, c("Shedding.Level", "Coat.Grooming.Frequency", 
                    "Drooling.Level")]
-    c("Shedding.Level", "Coat.Grooming.Frequency", "Drooling.Level")
-    c("Openness.To.Strangers", "Playfulness.Level", "Watchdog/Protective.Nature",
-      "Adaptability.Level")
-    c("Trainability.Level","Energy.Level","Barking.Level",
-      "MentalStimulationNeeds")
 
     traits_radar_func(dataframe = df1)
   })
@@ -511,6 +545,11 @@ server <- function(input, output, session) {
     hist(rnorm(input$obs))
   })
   
+  
+  outputOptions(output, "breed_traits_family_fc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_physical_fc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_social_fc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_personality_fc", suspendWhenHidden = FALSE)
 }
 
 # Run the application 
