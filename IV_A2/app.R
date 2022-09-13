@@ -9,8 +9,10 @@
 
 install.packages(c("reshape2", "shiny", "shinyWidgets", "ggplot2",
                    "gganimate", "hrbrthemes", "reshape", "reshape2",
-                   "dplyr", "tablerDash", "echarts4r")) 
+                   "dplyr", "tablerDash", "echarts4r","shinythemes",
+                   "shinyjs", "shinyBS")) 
 library(shiny)
+library(shinythemes)
 library(shinyWidgets)
 library(ggplot2)
 library(gganimate)
@@ -22,6 +24,8 @@ library(viridis)
 library(plotly)
 library(tablerDash)
 library(echarts4r)
+library(shinyjs)
+library(shinyBS)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
@@ -45,6 +49,8 @@ breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
                   "German Shepherd Dogs", "Retrievers (Golden)", "Bulldogs")
 
 traits_radar_func <- function(dataframe) {
+  
+  print("inside traits function")
   df <- data.frame(
     x = colnames(dataframe),
     y = as.numeric(dataframe[1,]) # Convert dataframe to single
@@ -64,9 +70,17 @@ traits_radar_func <- function(dataframe) {
 breed_ranking_tab <- tabPanel(
   'Breed Rankings',
   # setBackgroundColor("ghostwhite"),
+  width = 10,
   fluidPage(
-    "Dog Breeds Comparison",
     
+    titlePanel(
+      h2("Dog Breeds Comparison", align = "center",
+         style = "
+                  border-top: 2px lightblue solid;
+                  border-bottom: 2px lightblue solid;
+                  padding: 30px 5px;
+                  margin: 30px 0")
+    ),
     fluidRow(
       style = "background: white;",
       column(12,
@@ -75,7 +89,7 @@ breed_ranking_tab <- tabPanel(
                column(style = "text-align: center;
                       border-right:1px solid lightgrey;",
                       6,
-                      pickerInput("breed_select", "Breeds:",
+                      pickerInput("breed_select", h5("Breed Selection:"),
                                   choices = breeds,
                                   width = '100%',
                                   selected = "German Shepherd Dogs",
@@ -90,14 +104,36 @@ breed_ranking_tab <- tabPanel(
                ),
                column(style = "text-align: center;",
                       width = 6,
-                      pickerInput("breed_select_compare", "Breeds:",   
+                      pickerInput("breed_select_compare", h5("Breed Selection:"),   
                                   choices = breeds,
                                   width = '100%',
                                   selected = "Retrievers (Labrador)",
                                   multiple = FALSE),
+                      setSliderColor(c("DeepSkyBlue"), c(1)),
+                      chooseSliderSkin("Flat"),
+                      tags$head(
+                        # Note the wrapping of the string in HTML()
+                        tags$style(HTML("
+                      /* Change opacity of the traits scores */
+                      .disabled span {
+                        opacity: 0.9;
+                      }")),
+                      ),
+                      shinyjs::disabled(sliderInput("obs", "Good with Young Children:",
+                                                    
+                                  min = 0, max = 5, value = 3, ticks = FALSE
+                      )),
+                      bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
+                                options = NULL),
+                      shinyjs::disabled(sliderInput("obs", "Good with Young Children:",
+                                                    
+                                                    min = 0, max = 5, value = 3, ticks = FALSE
+                      )),
+                      bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
+                                options = NULL),
                       tabsetPanel(
-                        tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
-                        tabPanel("Barplot", plotlyOutput(''))
+                        # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
+                        # tabPanel("Barplot", plotlyOutput(''))
                       )
                )
              )
@@ -145,6 +181,7 @@ main_content <- fluidPage(
 # Tab 2: Trait Scores
 traits_tab <- tabPanel(
   'Traits',
+  shinyjs::useShinyjs(),
   titlePanel('Trait Scores by Breeds'),
   main_content
 )
@@ -154,6 +191,7 @@ ui <- navbarPage(
   'Dog Breed',
   breed_ranking_tab,
   traits_tab,
+  theme = shinytheme("paper")
   # setBackgroundColor("lightgrey")
 )
 
@@ -366,7 +404,7 @@ server <- function(input, output, session) {
     df <- data.frame(
       x = LETTERS[1:5],
       y = runif(5, 1, 5),
-      z = runif(5, 3, 7)
+      z = runif(5, 3, 5)
     )
     
     traits_radar_func(dataframe = df)
