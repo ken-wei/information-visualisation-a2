@@ -126,8 +126,7 @@ breed_compare_tab <- tabPanel(
     ),
     fluidRow(
       style = "background: white;",
-      setSliderColor(rep(c("DodgerBlue"), each=50), c(1:50)),
-      chooseSliderSkin("Flat"),
+      chooseSliderSkin("Flat", color = "DodgerBlue"),
       tags$head(
         # Note the wrapping of the string in HTML()
         tags$style(HTML("
