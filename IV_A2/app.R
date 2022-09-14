@@ -80,29 +80,9 @@ traits_radar_func <- function(dataframe, string) {
   
   df |>
     e_charts(x) |>
-    e_radar(y, max = 5, name = "Family Life Traits") |>
+    e_radar(y, max = 5, name = "Family Life Traits", ) |>
     e_tooltip(trigger = "item") |>
     e_legend(right = 0) 
-}
-
-traits_slider_func <- function(traits_id, traits, traits_score) {
-  fluidRow(
-    column(12,
-      shinyjs::disabled(
-        sliderInput("obs", "Good with Young Children:",
-                    min = 0, max = 5, value = 3, ticks = FALSE,
-                    width = '45%'
-        )),
-      bsTooltip("obs", "HoverOnMe", placement = "bottom", trigger = "hover",
-                options = NULL),
-      shinyjs::disabled(sliderInput("obs-1", "Good with Young Children:",
-                  min = 0, max = 5, value = 3, ticks = FALSE
-      )),
-      bsTooltip("obs-1", "HoverOnMe", placement = "bottom", trigger = "hover",
-                options = NULL)
-    )
-    
-  )
 }
 
 ##################
@@ -115,11 +95,9 @@ breed_compare_tab <- tabPanel(
   # setBackgroundColor("ghostwhite"),
   width = 10,
   fluidPage(
-    
     titlePanel(
       h2("Dog Breeds Comparison", align = "center",
-         style = "
-                  border-top: 2px lightblue solid;
+         style = "border-top: 2px lightblue solid;
                   border-bottom: 2px lightblue solid;
                   padding: 30px 5px;
                   margin: 30px 0")
@@ -128,54 +106,51 @@ breed_compare_tab <- tabPanel(
       style = "background: white;",
       chooseSliderSkin("Flat", color = "DodgerBlue"),
       tags$head(
-        # Note the wrapping of the string in HTML()
-        tags$style(HTML("
-                      /* Change opacity of the traits scores */
+      # Note the wrapping of the string in HTML()
+      tags$style(HTML("/* Change opacity of the traits scores */
                       .disabled span {
                         opacity: 0.9;
                       }"))
-      ),
-      column(12,
-             # "Fluid 12",
-             fluidRow(
-               column(style = "text-align: center;
-                      border-right:1px solid lightgrey;",
-                      width = 4, offset = 2,
-                      pickerInput("breed_select", h5("Breed Selection:"),
-                                  choices = breeds,
-                                  width = '100%',
-                                  selected = "German Shepherd Dogs",
-                                  multiple = FALSE),
-                      switchInput(inputId = "radar_toggle", value = TRUE, 
-                                  onLabel = "Radar", offLabel = "Score", width = '100%'
-                      ),
-                      tabsetPanel(
-                        tabPanel("Family Life", uiOutput("breed_traits_family_fc")),
-                        tabPanel("Physical", uiOutput("breed_traits_physical_fc")),
-                        tabPanel("Social", uiOutput('breed_traits_social_fc')),
-                        tabPanel("Personality", uiOutput('breed_traits_personality_fc')),
-                        tabPanel("All", echarts4rOutput('breed_traits_all'))
-                      )
-               ),
-               column(style = "text-align: center;",
-                      width = 4,
-                      pickerInput("breed_select_compare", h5("Breed Selection:"),   
-                                  choices = breeds,
-                                  width = '100%',
-                                  selected = "Retrievers (Labrador)",
-                                  multiple = FALSE,),
-                      switchInput(inputId = "radar_toggle_sec", value = TRUE, 
-                                  onLabel = "Radar", offLabel = "Score", width = '100%'
-                      ),
-                      tabsetPanel(
-                        tabPanel("Family Life", uiOutput("breed_traits_family_sc")),
-                        tabPanel("Physical", uiOutput("breed_traits_physical_sc")),
-                        tabPanel("Social", uiOutput('breed_traits_social_sc')),
-                        tabPanel("Personality", uiOutput('breed_traits_personality_sc')),
-                        # tabPanel("All", echarts4rOutput('breed_traits_all'))
-                      )
-               )
-             )
+    ),
+    column(
+        12,
+        # "Fluid 12",
+        fluidRow(
+        column(style = "text-align: center;
+              border-right:1px solid lightgrey;",
+              width = 4, offset = 2,
+              pickerInput("breed_select", h5("Breed Selection:"),
+                          choices = breeds,
+                          width = '100%',
+                          selected = "German Shepherd Dogs",
+                          multiple = FALSE),
+              switchInput(inputId = "radar_toggle", value = TRUE, 
+                          onLabel = "Radar", offLabel = "Score", width = '100%'),
+              tabsetPanel(
+                  tabPanel("Family Life", uiOutput("breed_traits_family_fc")),
+                  tabPanel("Physical", uiOutput("breed_traits_physical_fc")),
+                  tabPanel("Social", uiOutput('breed_traits_social_fc')),
+                  tabPanel("Personality", uiOutput('breed_traits_personality_fc')),
+                  tabPanel("All", echarts4rOutput('breed_traits_all')))
+        ),
+        column(style = "text-align: center;",
+               width = 4,
+               pickerInput("breed_select_compare", h5("Breed Selection:"),   
+               choices = breeds,
+               width = '100%',
+               selected = "Retrievers (Labrador)",
+               multiple = FALSE,),
+               switchInput(inputId = "radar_toggle_sec", value = TRUE, 
+                          onLabel = "Radar", offLabel = "Score", width = '100%'),
+               tabsetPanel(
+                 tabPanel("Family Life", uiOutput("breed_traits_family_sc")),
+                 tabPanel("Physical", uiOutput("breed_traits_physical_sc")),
+                 tabPanel("Social", uiOutput('breed_traits_social_sc')),
+                 tabPanel("Personality", uiOutput('breed_traits_personality_sc')),
+                # tabPanel("All", echarts4rOutput('breed_traits_all')))
+                )
+          )
+        )
       )
     )
   )
@@ -191,7 +166,6 @@ main_content <- fluidPage(
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
-      
       pickerInput("breeds_select", "Breeds:",   
                   choices = breeds, 
                   selected = c("Retrievers (Labrador)", "French Bulldogs",
