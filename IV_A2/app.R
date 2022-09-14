@@ -32,8 +32,8 @@ breed_rank_data <- read.csv("./breed_rank.csv")
 breed_traits_data <- read.csv("./breed_traits.csv")
 breed_images <- breed_rank_data[c("Breed", "Image")]
 # print(head(breed_images))
-df_test <- filter(breed_images, breed_images$Breed == "Retrievers (Labrador)")
-print(df_test[2])
+# df_test <- filter(breed_images, breed_images$Breed == "Retrievers (Labrador)")
+# print(df_test[2])
 breed_rank_data <- breed_rank_data[,-c(10:11)]
 breeds <- breed_rank_data$Breed
 years <- c("2013", "2014", "2015", "2016",
@@ -234,17 +234,20 @@ server <- function(input, output, session) {
   
   #Image
   output$breed_image <- renderUI({
+    # df_test <- filter(breed_images, breed_images$Breed == "Retrievers (Labrador)")
+    # print(df_test[2])
     df <- filter(breed_images, breed_images$Breed == input$breed_select)
-    image_breed <- 'https://www.akc.org/wp-content/uploads/2017/11/Curly-Coated-Retriever-illustration.jpg'
+    image_breed <- df[2]
     div(id = "image-breed",
         tags$img(src = image_breed, width = 100, height = 100)
     )
   })
   
   output$breed_image_s <- renderUI({
-    image_breed <- 'https://www.akc.org/wp-content/uploads/2017/11/Curly-Coated-Retriever-illustration.jpg'
+    df <- filter(breed_images, breed_images$Breed == input$breed_select_compare)
+    image_breed <- df[2]    
     div(id = "image-breed",
-        tags$img(src = image_breed, width = 100, height = 100)
+        tags$img(src = image_breed, width = 100, height = 100, marginBottom = 10)
     )
   })
   
