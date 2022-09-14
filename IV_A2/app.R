@@ -23,17 +23,18 @@ library(dplyr)
 library(viridis)
 library(plotly)
 library(tablerDash)
-library(echarts4r)
-library(shinyjs)
-library(shinyBS)
+library(echarts4r) # To draw radar plot
+library(shinyjs) # To disable html form element
+library(shinyBS) # Tooltip for the elements
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
-breed_images <- breed_rank_data[1]
-print(breed_images)
 breed_traits_data <- read.csv("./breed_traits.csv")
+breed_images <- breed_rank_data[c("Breed", "Image")]
+# print(head(breed_images))
+df_test <- filter(breed_images, breed_images$Breed == "Retrievers (Labrador)")
+print(df_test[2])
 breed_rank_data <- breed_rank_data[,-c(10:11)]
-print(head(breed_rank_data))
 breeds <- breed_rank_data$Breed
 years <- c("2013", "2014", "2015", "2016",
            "2017", "2018", "2019", "2020")
@@ -233,6 +234,7 @@ server <- function(input, output, session) {
   
   #Image
   output$breed_image <- renderUI({
+    df <- filter(breed_images, breed_images$Breed == input$breed_select)
     image_breed <- 'https://www.akc.org/wp-content/uploads/2017/11/Curly-Coated-Retriever-illustration.jpg'
     div(id = "image-breed",
         tags$img(src = image_breed, width = 100, height = 100)
