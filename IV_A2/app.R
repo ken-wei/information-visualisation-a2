@@ -94,7 +94,7 @@ traits_radar_func <- function(dataframe, string) {
               color = "SkyBlue"
             )) |>
     e_tooltip(trigger = "item") |>
-    e_legend(right = 20, top = 40) 
+    e_legend(show = FALSE) 
 }
 
 ##################
@@ -123,7 +123,7 @@ breed_compare_tab <- tabPanel(
                         opacity: 0.9;
                       }
                       .tab-content{
-                        padding-top: 20px;
+                        padding-top: 10px;
                       }
                       .tabbable ul {
                         display: inline-block;
@@ -155,10 +155,10 @@ breed_compare_tab <- tabPanel(
               #          )
               # ),
               tabsetPanel(
-                  tabPanel("Family Life", uiOutput("breed_traits_family_fc")),
-                  tabPanel("Physical", uiOutput("breed_traits_physical_fc")),
-                  tabPanel("Social", uiOutput('breed_traits_social_fc')),
-                  tabPanel("Personality", uiOutput('breed_traits_personality_fc'))),
+                  tabPanel("Family Life", "Trait Scores rated 0 to 5", uiOutput("breed_traits_family_fc")),
+                  tabPanel("Physical", "Trait Scores rated 0 to 5",uiOutput("breed_traits_physical_fc")),
+                  tabPanel("Social", "Trait Scores rated 0 to 5", uiOutput('breed_traits_social_fc')),
+                  tabPanel("Personality", "Trait Scores rated 0 to 5", uiOutput('breed_traits_personality_fc'))),
                   # tabPanel("All", echarts4rOutput('breed_traits_all')))
         ),
         column(style = "text-align: center;border-left:1px solid #E2DED0;",
@@ -172,10 +172,10 @@ breed_compare_tab <- tabPanel(
                switchInput(inputId = "radar_toggle_sec", value = TRUE, 
                           onLabel = "Radar", offLabel = "Score", width = '100%'),
                tabsetPanel(
-                 tabPanel("Family Life", uiOutput("breed_traits_family_sc")),
-                 tabPanel("Physical", uiOutput("breed_traits_physical_sc")),
-                 tabPanel("Social", uiOutput('breed_traits_social_sc')),
-                 tabPanel("Personality", uiOutput('breed_traits_personality_sc')),
+                 tabPanel("Family Life", "Trait Scores rated 0 to 5", uiOutput("breed_traits_family_sc")),
+                 tabPanel("Physical", "Trait Scores rated 0 to 5", uiOutput("breed_traits_physical_sc")),
+                 tabPanel("Social", "Trait Scores rated 0 to 5", uiOutput('breed_traits_social_sc')),
+                 tabPanel("Personality", "Trait Scores rated 0 to 5", uiOutput('breed_traits_personality_sc')),
                 # tabPanel("All", echarts4rOutput('breed_traits_all')))
                 )
           )
@@ -361,8 +361,7 @@ server <- function(input, output, session) {
   })
   
   output$caption <- renderText({
-    paste("Dog Breeds in the US.",
-          input$year)
+    paste("Trait Scores rated 0 to 5")
   })
   
   # Change visualisation (Radar Plot and Slider visualisation)
