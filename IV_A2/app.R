@@ -164,16 +164,15 @@ breed_compare_tab <- tabPanel(
                                   width = '100%',
                                   selected = "Retrievers (Labrador)",
                                   multiple = FALSE,),
-                      switchInput(inputId = "id", value = FALSE, 
+                      switchInput(inputId = "radar_toggle_sec", value = FALSE, 
                                   onLabel = "Radar", offLabel = "Score", width = '100%'
                       ),
                       tabsetPanel(
-                        # tabPanel("Trendline", echarts4rOutput("breed_traits_compare")),
-                        # tabPanel("Family Life", uiOutput('family')),
-                        # tabPanel("Physical", uiOutput('physical')),
-                        # tabPanel("Social", uiOutput('social')),
-                        # tabPanel("Personality", uiOutput('personality')),
-                        tabPanel("All", uiOutput('all')),
+                        tabPanel("Family Life", uiOutput("breed_traits_family_sc")),
+                        tabPanel("Physical", uiOutput("breed_traits_physical_sc")),
+                        tabPanel("Social", uiOutput('breed_traits_social_sc')),
+                        tabPanel("Personality", uiOutput('breed_traits_personality_sc')),
+                        # tabPanel("All", echarts4rOutput('breed_traits_all'))
                       )
                )
              )
@@ -346,12 +345,18 @@ server <- function(input, output, session) {
   
   # Change visualisation (Radar Plot and Slider visualisation)
   radar_or_slider <- reactiveVal(TRUE)
+  radar_or_slider_sec <- reactiveVal(TRUE)
   
   # Observe the event for radar toggle button (First Choice)
   observeEvent(input$radar_toggle, {
     # Do something
     print(radar_or_slider())
     radar_or_slider(!radar_or_slider())
+  })
+  
+  # Observe the event for radar toggle button (First Choice)
+  observeEvent(input$radar_toggle_sec, {
+    radar_or_slider_sec(!radar_or_slider_sec())
   })
   
   # First choice of breed for physical 
@@ -387,6 +392,42 @@ server <- function(input, output, session) {
       uiOutput('personality')
     } else {
       echarts4rOutput('breed_traits_personality')
+    }
+  })
+  
+  # Second choice of breed for physical 
+  output$breed_traits_family_sc <- renderUI({
+    if (radar_or_slider_sec()) {
+      uiOutput('family_s')
+    } else {
+      echarts4rOutput('breed_traits_s')
+    }
+  })
+  
+  # Second choice of breed for physical 
+  output$breed_traits_physical_sc <- renderUI({
+    if (radar_or_slider_sec()) {
+      uiOutput('physical_s')
+    } else {
+      echarts4rOutput('breed_traits_physical_s')
+    }
+  })
+  
+  # Second choice of breed for social 
+  output$breed_traits_social_sc <- renderUI({
+    if (radar_or_slider_sec()) {
+      uiOutput('social_s')
+    } else {
+      echarts4rOutput('breed_traits_social_s')
+    }
+  })
+  
+  # Second choice of breed for personality 
+  output$breed_traits_personality_sc <- renderUI({
+    if (radar_or_slider_sec()) {
+      uiOutput('personality_s')
+    } else {
+      echarts4rOutput('breed_traits_personality_s')
     }
   })
   
@@ -474,7 +515,6 @@ server <- function(input, output, session) {
     
   })
 
-  
   output$breed_traits_compare <- renderEcharts4r({
     df <- data.frame(
       x = LETTERS[1:5],
@@ -539,6 +579,77 @@ server <- function(input, output, session) {
                 "al-8","al-9","al-10","al-11","al-12","al-13","al-14"), values)
   })
   
+  #####################################
+  ##### For second choice comparison  #
+  #####################################
+  
+  # Output Radar plot for family traits second choice
+  output$breed_traits_s <- renderEcharts4r({
+    df <- as.data.frame(breed_compare_selected())[, traits_family]
+    traits_radar_func(dataframe = df)
+  })
+  
+  # Output Radar plot for family traits second choice
+  output$breed_traits_physical_s <- renderEcharts4r({
+    df <- as.data.frame(breed_compare_selected())[, traits_physical]
+    traits_radar_func(dataframe = df)
+  })
+  
+  # Output Radar plot for social traits second choice
+  output$breed_traits_social_s <- renderEcharts4r({
+    df <- as.data.frame(breed_compare_selected())[, traits_social]
+    traits_radar_func(dataframe = df)
+  })
+  
+  # Output Radar plot for personality traits second choice
+  output$breed_traits_personality_s <- renderEcharts4r({
+    df <- as.data.frame(breed_compare_selected())[, traits_personality]
+    traits_radar_func(dataframe = df)
+  })
+  
+  # Output Radar plot for all traits second choice
+  output$breed_traits_all_s <- renderEcharts4r({
+    df <- as.data.frame(breed_compare_selected())[, traits_all]
+    traits_radar_func(dataframe = df)
+  })
+  
+  # Render trait scores second choice
+  output$family_s <- renderUI({
+    df <- as.data.frame(breed_compare_selected())[, traits_family] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_family, c("fm2-1","fm2-2","fm2-3"), values)
+  })
+  
+  # Render trait scores second choice
+  output$physical_s <- renderUI({
+    df <- as.data.frame(breed_compare_selected())[, traits_physical] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_physical, c("phy2-1","phy2-2","phy2-3"), values)
+  })
+  
+  # Render trait scores second choice
+  output$social_s <- renderUI({
+    df <- as.data.frame(breed_compare_selected())[, traits_social] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_social, c("sc2-1","sc2-2","sc2-3","sc2-4"), values)
+  })
+  
+  # Render trait scores second choice
+  output$personality_s <- renderUI({
+    df <- as.data.frame(breed_compare_selected())[, traits_personality] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_personality, c("per2-1","per2-2","per2-3","per2-4"), values)
+  })
+  
+  # Render trait scores for all second choice
+  output$all_s <- renderUI({
+    df <- as.data.frame(breed_compare_selected())[, traits_all] 
+    values <- as.numeric(df[1,])
+    slider_generate(traits_all, 
+                    c("al2-1","al2-2","al2-3","al2-4","al2-5","al2-6","al2-7",
+                      "al2-8","al2-9","al2-10","al2-11","al2-12","al2-13","al2-14"), values)
+  })
+  
   
   output$distPlot <- renderPlot({
     hist(rnorm(input$obs))
@@ -549,6 +660,10 @@ server <- function(input, output, session) {
   outputOptions(output, "breed_traits_physical_fc", suspendWhenHidden = FALSE)
   outputOptions(output, "breed_traits_social_fc", suspendWhenHidden = FALSE)
   outputOptions(output, "breed_traits_personality_fc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_family_sc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_physical_sc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_social_sc", suspendWhenHidden = FALSE)
+  outputOptions(output, "breed_traits_personality_sc", suspendWhenHidden = FALSE)
 }
 
 # Run the application 
