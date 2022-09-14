@@ -164,7 +164,7 @@ breed_compare_tab <- tabPanel(
                                   width = '100%',
                                   selected = "Retrievers (Labrador)",
                                   multiple = FALSE,),
-                      switchInput(inputId = "radar_toggle_sec", value = FALSE, 
+                      switchInput(inputId = "radar_toggle_sec", value = TRUE, 
                                   onLabel = "Radar", offLabel = "Score", width = '100%'
                       ),
                       tabsetPanel(
