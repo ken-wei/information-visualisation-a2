@@ -29,6 +29,7 @@ library(shinyBS) # Tooltip for the elements
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
+breed_rank_data <- breed_rank_data[order(breed_rank_data$Breed),] #sort the data based on breed name
 breed_traits_data <- read.csv("./breed_traits.csv")
 breed_images <- breed_rank_data[c("Breed", "Image")]
 # print(head(breed_images))
@@ -36,6 +37,9 @@ breed_images <- breed_rank_data[c("Breed", "Image")]
 # print(df_test[2])
 breed_rank_data <- breed_rank_data[,-c(10:11)]
 breeds <- breed_rank_data$Breed
+# print(breeds)
+# breeds_test <- breeds[order(breed_rank_data$Breed),]
+# print(breeds_test)
 years <- c("2013", "2014", "2015", "2016",
            "2017", "2018", "2019", "2020")
 names(breed_rank_data) <- c("Breed", "2013", "2014", "2015", "2016",
