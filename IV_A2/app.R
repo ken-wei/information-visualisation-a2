@@ -80,10 +80,10 @@ traits_radar_func <- function(dataframe, string) {
   
   df |>
     e_charts(x) |>
-    e_radar(y, max = 5, name = "Family Life Traits", 
+    e_radar(y, max = 5, name = string, 
             radar = list(axisTick = list(show = FALSE), center = c("50%", "50%"), 
             axisLabel = list(show = TRUE, showMinLabel = FALSE, 
-                             showMaxLabel = FALSE), splitNumber=5),
+                             showMaxLabel = FALSE, verticalAlign = 'middle'), splitNumber=5),
             areaStyle = list(
               color = "SkyBlue"
             )) |>
@@ -440,7 +440,7 @@ server <- function(input, output, session) {
     values <- tail(df1, 1)
     print(df1["Affectionate.With.Family"][1])
     
-    traits_radar_func(dataframe = df1)
+    traits_radar_func(dataframe = df1, string = "Family Life Traits")
     # df <- data.frame(
     #   x = colnames(df1),
     #   y = as.numeric(df1[1,]) # Convert dataframe to single
@@ -457,7 +457,7 @@ server <- function(input, output, session) {
     df1 <- df1[, c("Shedding.Level", "Coat.Grooming.Frequency", 
                    "Drooling.Level")]
 
-    traits_radar_func(dataframe = df1)
+    traits_radar_func(dataframe = df1, string = "Physical Traits")
   })
   
   output$breed_traits_social <- renderEcharts4r({
@@ -469,7 +469,7 @@ server <- function(input, output, session) {
     c("Trainability.Level","Energy.Level","Barking.Level",
       "MentalStimulationNeeds")
     
-    traits_radar_func(dataframe = df1)
+    traits_radar_func(dataframe = df1, string = "Social Traits")
   })
   
   output$breed_traits_personality <- renderEcharts4r({
@@ -477,7 +477,7 @@ server <- function(input, output, session) {
     print(colnames(df1))
     df1 <- df1[, c("Trainability.Level","Energy.Level","Barking.Level",
                    "Mental.Stimulation.Needs")]
-    traits_radar_func(dataframe = df1)
+    traits_radar_func(dataframe = df1, string = "Personality Traits")
   })
   
   output$breed_traits_all <- renderEcharts4r({
@@ -490,7 +490,7 @@ server <- function(input, output, session) {
                    "Watchdog.Protective.Nature",
                    "Adaptability.Level", "Trainability.Level","Energy.Level","Barking.Level",
                    "Mental.Stimulation.Needs")]
-    traits_radar_func(dataframe = df1)
+    traits_radar_func(dataframe = df1, string = "All Traits")
     
   })
 
@@ -510,7 +510,7 @@ server <- function(input, output, session) {
     for (i in 1:length(traits_list)){
       v[[i]] <- tagList(
         shinyjs::disabled(
-          sliderInput(traits_id[i], traits_list[i],
+          sliderInput(traits_id[i], gsub('\\.', ' ', traits_list[i]),
                       min = 0, max = 5, value = values[i], ticks = TRUE,
                       width = '100%'
           )),
@@ -565,31 +565,31 @@ server <- function(input, output, session) {
   # Output Radar plot for family traits second choice
   output$breed_traits_s <- renderEcharts4r({
     df <- as.data.frame(breed_compare_selected())[, traits_family]
-    traits_radar_func(dataframe = df)
+    traits_radar_func(dataframe = df, string = "Family Life Traits")
   })
   
   # Output Radar plot for family traits second choice
   output$breed_traits_physical_s <- renderEcharts4r({
     df <- as.data.frame(breed_compare_selected())[, traits_physical]
-    traits_radar_func(dataframe = df)
+    traits_radar_func(dataframe = df, string = "Physical Traits")
   })
   
   # Output Radar plot for social traits second choice
   output$breed_traits_social_s <- renderEcharts4r({
     df <- as.data.frame(breed_compare_selected())[, traits_social]
-    traits_radar_func(dataframe = df)
+    traits_radar_func(dataframe = df, string = "Social Traits")
   })
   
   # Output Radar plot for personality traits second choice
   output$breed_traits_personality_s <- renderEcharts4r({
     df <- as.data.frame(breed_compare_selected())[, traits_personality]
-    traits_radar_func(dataframe = df)
+    traits_radar_func(dataframe = df, string = "Personality Traits")
   })
   
   # Output Radar plot for all traits second choice
   output$breed_traits_all_s <- renderEcharts4r({
     df <- as.data.frame(breed_compare_selected())[, traits_all]
-    traits_radar_func(dataframe = df)
+    traits_radar_func(dataframe = df, string = "All Traits")
   })
   
   # Render trait scores second choice
