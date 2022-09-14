@@ -82,15 +82,15 @@ traits_radar_func <- function(dataframe, string) {
   
   df |>
     e_charts(x) |>
-    e_radar(y, max = 5, name = string, 
-            radar = list(axisTick = list(show = FALSE), center = c("50%", "50%"), 
+    e_radar(y, max = 5, name = "Trait Scores rated 0 to 5", 
+            radar = list(axisTick = list(show = FALSE), 
             axisLabel = list(show = TRUE, showMinLabel = FALSE, 
-                             showMaxLabel = FALSE, verticalAlign = 'middle'), splitNumber=5),
+                             showMaxLabel = FALSE), splitNumber=5),
             areaStyle = list(
               color = "SkyBlue"
             )) |>
     e_tooltip(trigger = "item") |>
-    e_legend(right = 0) 
+    e_legend(right = 20, top = 40) 
 }
 
 ##################
@@ -103,11 +103,11 @@ breed_compare_tab <- tabPanel(
   width = 10,
   fluidPage(
     titlePanel(
-      h2("Dog Breeds Comparison", align = "center",
+      h3("Dog Breeds Comparison", align = "center",
          style = "border-top: 2px lightblue solid;
                   border-bottom: 2px lightblue solid;
-                  padding: 30px 5px;
-                  margin: 30px 0")
+                  padding: 25px 5px;
+                  margin: 0")
     ),
     fluidRow(
       style = "background: white;",
@@ -117,14 +117,21 @@ breed_compare_tab <- tabPanel(
       tags$style(HTML("/* Change opacity of the traits scores */
                       .disabled span {
                         opacity: 0.9;
+                      }
+                      .tab-content{
+                        padding-top: 20px;
+                      }
+                      .tabbable ul {
+                        display: inline-block;
                       }"))
     ),
     column(
         12,
         # "Fluid 12",
         fluidRow(
-        column(style = "text-align: center;
-              border-right:1px solid lightgrey;",
+        column(class = ".flex-center",
+              style = "text-align: center;
+              border-right:1px solid #E2DED0;",
               width = 4, offset = 2,
               pickerInput("breed_select", h5("Breed Selection:"),
                           choices = breeds,
@@ -147,10 +154,10 @@ breed_compare_tab <- tabPanel(
                   tabPanel("Family Life", uiOutput("breed_traits_family_fc")),
                   tabPanel("Physical", uiOutput("breed_traits_physical_fc")),
                   tabPanel("Social", uiOutput('breed_traits_social_fc')),
-                  tabPanel("Personality", uiOutput('breed_traits_personality_fc')),
-                  tabPanel("All", echarts4rOutput('breed_traits_all')))
+                  tabPanel("Personality", uiOutput('breed_traits_personality_fc'))),
+                  # tabPanel("All", echarts4rOutput('breed_traits_all')))
         ),
-        column(style = "text-align: center;",
+        column(style = "text-align: center;border-left:1px solid #E2DED0;",
                width = 4,
                pickerInput("breed_select_compare", h5("Breed Selection:"),   
                choices = breeds,
@@ -239,7 +246,7 @@ server <- function(input, output, session) {
     df <- filter(breed_images, breed_images$Breed == input$breed_select)
     image_breed <- df[2]
     div(id = "image-breed",
-        tags$img(src = image_breed, width = 100, height = 100)
+        tags$img(src = image_breed, width = 130, height = 130, marginBottom = 10)
     )
   })
   
@@ -247,7 +254,7 @@ server <- function(input, output, session) {
     df <- filter(breed_images, breed_images$Breed == input$breed_select_compare)
     image_breed <- df[2]    
     div(id = "image-breed",
-        tags$img(src = image_breed, width = 100, height = 100, marginBottom = 10)
+        tags$img(src = image_breed, width = 130, height = 130, marginBottom = 10)
     )
   })
   
