@@ -74,7 +74,7 @@ traits_radar_func <- function(dataframe, string) {
   
   print("inside traits function")
   df <- data.frame(
-    x = colnames(dataframe),
+    x = gsub('\\.', '\n', colnames(dataframe)),
     y = as.numeric(dataframe[1,]) # Convert dataframe to single
   )
   
@@ -82,7 +82,8 @@ traits_radar_func <- function(dataframe, string) {
     e_charts(x) |>
     e_radar(y, max = 5, name = "Family Life Traits", 
             radar = list(axisTick = list(show = FALSE), center = c("50%", "50%"), 
-            axisLabel = list(show = TRUE, showMinLabel = FALSE), splitNumber=5),
+            axisLabel = list(show = TRUE, showMinLabel = FALSE, 
+                             showMaxLabel = FALSE), splitNumber=5),
             areaStyle = list(
               color = "SkyBlue"
             )) |>
