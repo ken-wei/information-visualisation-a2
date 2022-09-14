@@ -29,8 +29,11 @@ library(shinyBS)
 
 
 breed_rank_data <- read.csv("./breed_rank.csv")
+breed_images <- breed_rank_data[1]
+print(breed_images)
 breed_traits_data <- read.csv("./breed_traits.csv")
 breed_rank_data <- breed_rank_data[,-c(10:11)]
+print(head(breed_rank_data))
 breeds <- breed_rank_data$Breed
 years <- c("2013", "2014", "2015", "2016",
            "2017", "2018", "2019", "2020")
@@ -52,8 +55,7 @@ breed_filter <- c("Retrievers (Labrador)", "French Bulldogs",
 # Traits Sections for data#
 ###########################
 
-traits_all <- c("Affectionate.With.Family", 
-                "Good.With.Young.Children", 
+traits_all <- c("Affectionate.With.Family", "Good.With.Young.Children", 
                 "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency", 
                 "Drooling.Level", "Openness.To.Strangers", "Playfulness.Level", 
                 "Watchdog.Protective.Nature",
@@ -64,8 +66,7 @@ traits_family <- c("Affectionate.With.Family", "Good.With.Young.Children",
 traits_physical <- c("Shedding.Level", "Coat.Grooming.Frequency", 
                      "Drooling.Level")
 traits_social <- c("Openness.To.Strangers", "Playfulness.Level", 
-                   "Watchdog.Protective.Nature",
-                   "Adaptability.Level")
+                   "Watchdog.Protective.Nature", "Adaptability.Level")
 traits_personality <- c("Trainability.Level","Energy.Level","Barking.Level",
                         "Mental.Stimulation.Needs")
 
@@ -129,8 +130,18 @@ breed_compare_tab <- tabPanel(
                           width = '100%',
                           selected = "German Shepherd Dogs",
                           multiple = FALSE),
+              uiOutput("breed_image" ),
               switchInput(inputId = "radar_toggle", value = TRUE, 
-                          onLabel = "Radar", offLabel = "Score", width = '100%'),
+                          onLabel = "Radar", offLabel = "Score", 
+                          width = '100%'),
+              # fluidRow(
+              #   column(6,
+              #          # uiOutput("breed_image" ),
+              #          ),
+              #   column(6,
+              #          
+              #          )
+              # ),
               tabsetPanel(
                   tabPanel("Family Life", uiOutput("breed_traits_family_fc")),
                   tabPanel("Physical", uiOutput("breed_traits_physical_fc")),
@@ -145,6 +156,7 @@ breed_compare_tab <- tabPanel(
                width = '100%',
                selected = "Retrievers (Labrador)",
                multiple = FALSE,),
+               uiOutput("breed_image_s" ),
                switchInput(inputId = "radar_toggle_sec", value = TRUE, 
                           onLabel = "Radar", offLabel = "Score", width = '100%'),
                tabsetPanel(
@@ -218,6 +230,21 @@ ui <- navbarPage(
 ################
 
 server <- function(input, output, session) {
+  
+  #Image
+  output$breed_image <- renderUI({
+    image_breed <- 'https://www.akc.org/wp-content/uploads/2017/11/Curly-Coated-Retriever-illustration.jpg'
+    div(id = "image-breed",
+        tags$img(src = image_breed, width = 100, height = 100)
+    )
+  })
+  
+  output$breed_image_s <- renderUI({
+    image_breed <- 'https://www.akc.org/wp-content/uploads/2017/11/Curly-Coated-Retriever-illustration.jpg'
+    div(id = "image-breed",
+        tags$img(src = image_breed, width = 100, height = 100)
+    )
+  })
   
   output$breed_ranks_line <- renderPlotly({
     print("hello world")
@@ -634,7 +661,7 @@ server <- function(input, output, session) {
     hist(rnorm(input$obs))
   })
   
-  
+  # Suspend the tabset panel when selecting other panel to prevent flickering
   outputOptions(output, "breed_traits_family_fc", suspendWhenHidden = FALSE)
   outputOptions(output, "breed_traits_physical_fc", suspendWhenHidden = FALSE)
   outputOptions(output, "breed_traits_social_fc", suspendWhenHidden = FALSE)
