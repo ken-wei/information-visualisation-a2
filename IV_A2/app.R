@@ -80,7 +80,12 @@ traits_radar_func <- function(dataframe, string) {
   
   df |>
     e_charts(x) |>
-    e_radar(y, max = 5, name = "Family Life Traits", ) |>
+    e_radar(y, max = 5, name = "Family Life Traits", 
+            radar = list(axisTick = list(show = FALSE), center = c("50%", "50%"), 
+            axisLabel = list(show = TRUE, showMinLabel = FALSE), splitNumber=5),
+            areaStyle = list(
+              color = "SkyBlue"
+            )) |>
     e_tooltip(trigger = "item") |>
     e_legend(right = 0) 
 }
@@ -92,7 +97,6 @@ traits_radar_func <- function(dataframe, string) {
 # Tab 1 : Breed Rankings
 breed_compare_tab <- tabPanel(
   'Breeds Comparison',
-  # setBackgroundColor("ghostwhite"),
   width = 10,
   fluidPage(
     titlePanel(
