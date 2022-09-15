@@ -86,6 +86,7 @@ traits_radar_func <- function(dataframe, string) {
   
   df |>
     e_charts(x) |>
+    e_y_axis(axisLabel = list(color = 'black', fontWeight = 'bolder')) |>
     e_radar(y, max = 5, name = "Trait Scores rated 0 to 5", 
             radar = list(axisTick = list(show = FALSE), 
             axisLabel = list(show = TRUE, showMinLabel = FALSE, 
@@ -94,7 +95,8 @@ traits_radar_func <- function(dataframe, string) {
               color = "SkyBlue"
             )) |>
     e_tooltip(trigger = "item") |>
-    e_legend(show = FALSE) 
+    e_legend(show = FALSE)
+    
 }
 
 ##################
@@ -224,7 +226,11 @@ main_content <- fluidPage(
 traits_tab <- tabPanel(
   'Traits',
   shinyjs::useShinyjs(),
-  titlePanel('Trait Scores by Breeds'),
+  h3("Popularity of Dog Breeds", align = "center",
+     style = "border-top: 2px lightblue solid;
+                  border-bottom: 2px lightblue solid;
+                  padding: 25px 5px;
+                  margin: 10"),
   main_content
 )
 
@@ -272,9 +278,9 @@ server <- function(input, output, session) {
                 aes(x=year, y=value, 
                     group=variable, 
                     color=variable)) +
-      geom_line(size=1) + 
-      geom_point(shape=21, size=3) +
-      theme_ipsum() +
+      geom_line(size=0.6) + 
+      geom_point(shape=20, size=3) +
+      # theme_ipsum() +
       scale_y_discrete(limits=rev) +  # Reverse the order
       # transition_reveal(as.Date(year))
       theme(legend.position = "top") +
@@ -282,7 +288,8 @@ server <- function(input, output, session) {
       labs(
         title = "Popularity of Dog Breeds in the US through Year 2013-2020",
         y = "Rankings",
-        x = "Years"
+        x = "Years",
+        color = "Selected Breeds\n"
       ) +
       theme(
         # Set background color to white
@@ -296,8 +303,9 @@ server <- function(input, output, session) {
         # Remove labels from the vertical axis
         # axis.text.y = element_blank(),
         # But customize labels for the horizontal axis
-        axis.text.x = element_text(family = "Econ Sans Cnd", size = 16),
-        axis.title.y = element_text(family = "Econ Sans Cnd", size = 16)
+        axis.text.x = element_text(size = 10,face="bold"),
+        axis.title.y = element_text(size = 11),
+        plot.title = element_text(margin = 10, hjust = 0.5, size = 16)
       )
     
     ggplotly(p)
@@ -314,11 +322,6 @@ server <- function(input, output, session) {
       scale_y_discrete(limits=rev) + # Reverse the order
       # scale_y_discrete(position = "right") +
       # scale_x_reverse() +
-      labs(
-        title = "Rankings through years",
-        y = "Rankings",
-        x = "Years"
-      ) + 
       theme(
         # Set background color to white
         panel.background = element_rect(fill = "white"),
@@ -329,22 +332,22 @@ server <- function(input, output, session) {
         # Only left line of the vertical axis is painted in black
         axis.line.y.left = element_line(color = "black"),
         # But customize labels for the horizontal axis
-        axis.text.x = element_text(family = "Econ Sans Cnd", size = 16),
-        axis.title.y = element_text(family = "Econ Sans Cnd", size = 16)
+        axis.text.x = element_text(size = 10,face="bold"),
+        axis.title.y = element_text(size = 11)
       ) +
       labs(
         title = "Breed Popularity",
+        y = "Rankings",
+        x = "Years",
+        fill = "Selected Breeds\n"
       ) + 
       theme(
-        plot.title = element_text(
-          family = "Econ Sans Cnd", 
-          face = "bold",
-          size = 22
+        plot.title = element_text(margin = 10,
+          size = 16,
+          hjust = 0.5,
         ),
-        plot.subtitle = element_text(
-          family = "Econ Sans Cnd",
-          size = 20
-        )
+        legend.title = element_text(size = 11, vjust = 0.5),
+        legend.text = element_text(size = 11, vjust = 0.5)
       ) 
 
     ay = list(
