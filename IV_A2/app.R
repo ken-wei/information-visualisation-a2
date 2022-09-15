@@ -10,7 +10,7 @@
 install.packages(c("reshape2", "shiny", "shinyWidgets", "ggplot2",
                    "gganimate", "hrbrthemes", "reshape", "reshape2",
                    "dplyr", "tablerDash", "echarts4r","shinythemes",
-                   "shinyjs", "shinyBS")) 
+                   "shinyjs", "shinyBS", "plotly", "RColorBrewer")) 
 library(shiny)
 library(shinythemes)
 library(shinyWidgets)
@@ -20,7 +20,7 @@ library(hrbrthemes)
 library(reshape)
 library(reshape2)
 library(dplyr)
-library(viridis)
+library(RColorBrewer)
 library(plotly)
 library(tablerDash)
 library(echarts4r) # To draw radar plot
@@ -289,7 +289,7 @@ server <- function(input, output, session) {
       scale_y_discrete(limits=rev) +  # Reverse the order
       # transition_reveal(as.Date(year))
       theme(legend.position = "top") +
-      # scale_color_viridis() +
+      scale_color_brewer(palette = "Paired") +
       labs(
         title = "Popularity of Dog Breeds in the US through Year 2013-2020",
         y = "Rankings",
@@ -339,6 +339,7 @@ server <- function(input, output, session) {
       geom_col(position="dodge2", width = 0.5) + 
       # coord_flip() +
       scale_y_discrete(limits=rev) + # Reverse the order
+      scale_fill_brewer(palette = "Paired") +
       # scale_y_discrete(position = "right") +
       # scale_x_reverse() +
       theme(
