@@ -28,23 +28,30 @@ library(shinyjs) # To disable html form element
 library(shinyBS) # Tooltip for the elements
 
 
+######################################
+# Reading data from the csv files    #
+######################################
+
+# Ranking data from csv
 breed_rank_data <- read.csv("./breed_rank.csv")
-breed_rank_data <- breed_rank_data[order(breed_rank_data$Breed),] #sort the data based on breed name
+# Sort the data based on breed name
+breed_rank_data <- breed_rank_data[order(breed_rank_data$Breed),] 
+# Traits data of each breed
 breed_traits_data <- read.csv("./breed_traits.csv")
+# Store the images url into a dataframe
 breed_images <- breed_rank_data[c("Breed", "Image")]
-# print(head(breed_images))
-# df_test <- filter(breed_images, breed_images$Breed == "Retrievers (Labrador)")
-# print(df_test[2])
+# Getting only years colnames from the rank data data
 breed_rank_data <- breed_rank_data[,-c(10:11)]
-breeds <- breed_rank_data$Breed
-# print(breeds)
-# breeds_test <- breeds[order(breed_rank_data$Breed),]
-# print(breeds_test)
+breeds <- breed_rank_data$Breed # all of the dog breeds
 years <- c("2013", "2014", "2015", "2016",
            "2017", "2018", "2019", "2020")
 names(breed_rank_data) <- c("Breed", "2013", "2014", "2015", "2016",
                             "2017", "2018", "2019", "2020")
 
+#####################################
+#        Processing section         #
+#####################################
+# Process the data frame of rank data to fit line plot and bar chart
 breed_rank_data <- as.data.frame(t(breed_rank_data))
 # Update the column names 
 colnames(breed_rank_data) <- breeds
@@ -103,7 +110,7 @@ traits_radar_func <- function(dataframe, string) {
 # USER INTERFACE #
 ##################
 
-# Tab 1 : Breed Rankings
+# Tab 1 : Breeds Comparison
 breed_compare_tab <- tabPanel(
   'Breeds Comparison',
   width = 10,
@@ -119,7 +126,7 @@ breed_compare_tab <- tabPanel(
       style = "background: white;",
       chooseSliderSkin("Flat", color = "DodgerBlue"),
       tags$head(
-      # Note the wrapping of the string in HTML()
+      # Html styling for the tab content (align center)
       tags$style(HTML("/* Change opacity of the traits scores */
                       .disabled span {
                         opacity: 0.9;
@@ -133,7 +140,6 @@ breed_compare_tab <- tabPanel(
     ),
     column(
         12,
-        # "Fluid 12",
         fluidRow(
         column(class = ".flex-center",
               style = "text-align: center;
@@ -194,13 +200,11 @@ breed_compare_tab <- tabPanel(
       )
     )
   )
-  # textOutput("caption"),
-  # uiOutput("traitsCard")
 )
 
 
 
-# Content for Tab 2: Trait Scores
+# Content for Tab 2: Popularity trend (Line plot and bar chart)
 main_content <- fluidPage(
   
   # Sidebar with a slider input for number of bins 
@@ -234,7 +238,7 @@ main_content <- fluidPage(
   )
 )
 
-# Tab 2: Trait Scores
+# Tab 2: Popularity trend
 traits_tab <- tabPanel(
   'Popularity Trend',
   shinyjs::useShinyjs(),
@@ -246,13 +250,12 @@ traits_tab <- tabPanel(
   main_content
 )
 
-# Define UI for application that draws a histogram
+# Define UI for the whole application consists of two navbar tabs
 ui <- navbarPage(
   'Dog Breed',
   breed_compare_tab,
   traits_tab,
   theme = shinytheme("paper")
-  # setBackgroundColor("lightgrey")
 )
 
 ################
@@ -261,10 +264,8 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
-  #Image
+  # UI output of the breed image based on reactive breed selections (First)
   output$breed_image <- renderUI({
-    # df_test <- filter(breed_images, breed_images$Breed == "Retrievers (Labrador)")
-    # print(df_test[2])
     df <- filter(breed_images, breed_images$Breed == input$breed_select)
     image_breed <- df[2]
     div(id = "image-breed",
@@ -272,6 +273,7 @@ server <- function(input, output, session) {
     )
   })
   
+  # UI output of the breed image based on reactive breed selections (second)
   output$breed_image_s <- renderUI({
     df <- filter(breed_images, breed_images$Breed == input$breed_select_compare)
     image_breed <- df[2]    
@@ -280,6 +282,7 @@ server <- function(input, output, session) {
     )
   })
   
+  # Output plotly trend line object for the "Popularity Trend" tab
   output$breed_ranks_line <- renderPlotly({
     filtered_data <- filter(breed_rank_data, 
                             breed_rank_data$variable %in% input$breeds_select)
@@ -293,9 +296,7 @@ server <- function(input, output, session) {
                                  " achieved Rank", value))) +
       geom_line(size=0.6) + 
       geom_point(shape=20, size=3) +
-      # theme_ipsum() +
-      scale_y_discrete(limits=rev) +  # Reverse the order
-      # transition_reveal(as.Date(year))
+      scale_y_discrete(limits=rev) +  # Reverse the order or rank values
       theme(legend.position = "top") +
       scale_color_brewer(palette = "Paired") +
       labs(
@@ -313,8 +314,6 @@ server <- function(input, output, session) {
         axis.title.x = element_blank(),
         # Only left line of the vertical axis is painted in black
         axis.line.y.left = element_line(color = "black"),
-        # Remove labels from the vertical axis
-        # axis.text.y = element_blank(),
         # But customize labels for the horizontal axis
         axis.text.x = element_text(size = 10,face="bold"),
         axis.title.y = element_text(size = 11),
@@ -336,6 +335,7 @@ server <- function(input, output, session) {
       )
   })
   
+  # Output plotly bar chart object for the "Popularity Trend" tab
   output$breed_ranks_bar <- renderPlotly ({
     ordered_data <- breed_rank_data[order(breed_rank_data$value),]
     p <- ggplot(data = filter(ordered_data, ordered_data$variable %in% input$breeds_select), 
@@ -344,11 +344,8 @@ server <- function(input, output, session) {
                fill = variable, text = paste("In Year", year, ",", variable,
                                              " achieved Rank", value))) + 
       geom_col(position="dodge2", width = 0.5) + 
-      # coord_flip() +
       scale_y_discrete(limits=rev) + # Reverse the order
       scale_fill_brewer(palette = "Paired") +
-      # scale_y_discrete(position = "right") +
-      # scale_x_reverse() +
       theme(
         # Set background color to white
         panel.background = element_rect(fill = "white"),
@@ -373,8 +370,6 @@ server <- function(input, output, session) {
           size = 16,
           hjust = 0.5,
         ),
-        # legend.title = element_text(size = 11, vjust = 0.5),
-        # legend.text = element_text(size = 11, vjust = 0.5),
       ) 
 
     ay = list(
@@ -493,34 +488,12 @@ server <- function(input, output, session) {
   })
   
   output$breed_traits <- renderEcharts4r({
-    # print(input$breed_select)
-    # print(breed_traits_data$Breed)
     df1 <- as.data.frame(breed_selected())
-    # print(tail(df1, n = 1))
-    # print(colnames(df1)[-1])
-    # print(df1)
     df1 <- df1[, c("Affectionate.With.Family", 
                   "Good.With.Young.Children", 
                   "Good.With.Other.Dogs")]
-    c("Shedding.Level", "Coat.Grooming.Frequency", "Drooling.Level")
-    c("Openness.To.Strangers", "Playfulness.Level", "Watchdog/Protective.Nature",
-      "Adaptability.Level")
-    c("Trainability.Level","Energy.Level","Barking.Level",
-      "MentalStimulationNeeds")
-    print(colnames(df1))
     values <- tail(df1, 1)
-    print(df1["Affectionate.With.Family"][1])
-    
     traits_radar_func(dataframe = df1, string = "Family Life Traits")
-    # df <- data.frame(
-    #   x = colnames(df1),
-    #   y = as.numeric(df1[1,]) # Convert dataframe to single
-    # )
-    # 
-    # df |>
-    #   e_charts(x) |>
-    #   e_radar(y, max = 5) |>
-    #   e_tooltip(trigger = "item")
   })
   
   output$breed_traits_physical <- renderEcharts4r({
@@ -533,19 +506,14 @@ server <- function(input, output, session) {
   
   output$breed_traits_social <- renderEcharts4r({
     df1 <- as.data.frame(breed_selected()) # reactive breed select input
-    print(df1)
     df1 <- df1[, c("Openness.To.Strangers", "Playfulness.Level", 
                    "Watchdog.Protective.Nature",
                    "Adaptability.Level")]
-    c("Trainability.Level","Energy.Level","Barking.Level",
-      "MentalStimulationNeeds")
-    
     traits_radar_func(dataframe = df1, string = "Social Traits")
   })
   
   output$breed_traits_personality <- renderEcharts4r({
     df1 <- as.data.frame(breed_selected()) # reactive breed select input
-    print(colnames(df1))
     df1 <- df1[, c("Trainability.Level","Energy.Level","Barking.Level",
                    "Mental.Stimulation.Needs")]
     traits_radar_func(dataframe = df1, string = "Personality Traits")
@@ -553,7 +521,6 @@ server <- function(input, output, session) {
   
   output$breed_traits_all <- renderEcharts4r({
     df1 <- as.data.frame(breed_selected()) # reactive breed select input
-    print(colnames(df1))
     df1 <- df1[, c("Affectionate.With.Family", 
                    "Good.With.Young.Children", 
                    "Good.With.Other.Dogs", "Shedding.Level", "Coat.Grooming.Frequency", 
@@ -563,16 +530,6 @@ server <- function(input, output, session) {
                    "Mental.Stimulation.Needs")]
     traits_radar_func(dataframe = df1, string = "All Traits")
     
-  })
-
-  output$breed_traits_compare <- renderEcharts4r({
-    df <- data.frame(
-      x = LETTERS[1:5],
-      y = runif(5, 1, 5),
-      z = runif(5, 3, 5)
-    )
-    
-    traits_radar_func(dataframe = df)
   })
   
   # Helper function to create a set of slider + hover tooltip
@@ -630,7 +587,7 @@ server <- function(input, output, session) {
   })
   
   #####################################
-  ##### For second choice comparison  #
+  ##  For second selection comparison #
   #####################################
   
   # Output Radar plot for family traits second choice
@@ -663,28 +620,28 @@ server <- function(input, output, session) {
     traits_radar_func(dataframe = df, string = "All Traits")
   })
   
-  # Render trait scores second choice
+  # Render trait scores second choice (family life)
   output$family_s <- renderUI({
     df <- as.data.frame(breed_compare_selected())[, traits_family] 
     values <- as.numeric(df[1,])
     slider_generate(traits_family, c("fm2-1","fm2-2","fm2-3"), values)
   })
   
-  # Render trait scores second choice
+  # Render trait scores second choice (physical)
   output$physical_s <- renderUI({
     df <- as.data.frame(breed_compare_selected())[, traits_physical] 
     values <- as.numeric(df[1,])
     slider_generate(traits_physical, c("phy2-1","phy2-2","phy2-3"), values)
   })
   
-  # Render trait scores second choice
+  # Render trait scores second choice (social)
   output$social_s <- renderUI({
     df <- as.data.frame(breed_compare_selected())[, traits_social] 
     values <- as.numeric(df[1,])
     slider_generate(traits_social, c("sc2-1","sc2-2","sc2-3","sc2-4"), values)
   })
   
-  # Render trait scores second choice
+  # Render trait scores second choice (personality)
   output$personality_s <- renderUI({
     df <- as.data.frame(breed_compare_selected())[, traits_personality] 
     values <- as.numeric(df[1,])
@@ -700,10 +657,6 @@ server <- function(input, output, session) {
                       "al2-8","al2-9","al2-10","al2-11","al2-12","al2-13","al2-14"), values)
   })
   
-  
-  output$distPlot <- renderPlot({
-    hist(rnorm(input$obs))
-  })
   
   # Suspend the tabset panel when selecting other panel to prevent flickering
   outputOptions(output, "breed_traits_family_fc", suspendWhenHidden = FALSE)
