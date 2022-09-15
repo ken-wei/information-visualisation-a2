@@ -196,27 +196,30 @@ main_content <- fluidPage(
   
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
-    sidebarPanel(
-      pickerInput("breeds_select", "Breeds:",   
-                  choices = breeds, 
-                  selected = c("Retrievers (Labrador)", "French Bulldogs",
-                               "German Shepherd Dogs"),
-                  multiple = TRUE,
-                  options =  list("max-options" = 5)),
-      
-      pickerInput("years_select", "Years:",   
-                  choices = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
-                              "2019",  "2020"), 
-                  selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
-                               "2019",  "2020"),
-                  multiple = TRUE),
-    
+    fluidRow(
+      column(width = 8, offset = 2,
+        pickerInput("breeds_select", "Breeds:",   
+                    choices = breeds, 
+                    selected = c("Retrievers (Labrador)", "French Bulldogs",
+                                 "German Shepherd Dogs"),
+                    multiple = TRUE,
+                    options =  list("max-options" = 5), width = '100%'),
+      ),
+      column(width = 8, offset = 2,
+        pickerInput("years_select", "Years:",   
+                    choices = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
+                                "2019",  "2020"), 
+                    selected = c("2013",  "2014",  "2015",  "2016",  "2017",  "2018",
+                                 "2019",  "2020"),
+                    multiple = TRUE, width = '100%'),
+      )
     ),
-    
-    mainPanel(
-      tabsetPanel(
-        tabPanel("Trendline", plotlyOutput('breed_ranks_line')),
-        tabPanel("Barplot", plotlyOutput('breed_ranks_bar'))
+    fluidRow(
+      column(width = 8, offset = 2,
+        tabsetPanel(
+          tabPanel("Trendline", plotlyOutput('breed_ranks_line')),
+          tabPanel("Barplot", plotlyOutput('breed_ranks_bar'))
+        )
       )
     )
   )
@@ -269,7 +272,6 @@ server <- function(input, output, session) {
   })
   
   output$breed_ranks_line <- renderPlotly({
-    print("hello world")
     filtered_data <- filter(breed_rank_data, 
                             breed_rank_data$variable %in% input$breeds_select)
     filtered_data <- filter(filtered_data,
