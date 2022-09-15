@@ -218,7 +218,7 @@ main_content <- fluidPage(
       column(width = 8, offset = 2,
         tabsetPanel(
           tabPanel("Trendline", plotlyOutput('breed_ranks_line')),
-          tabPanel("Barplot", plotlyOutput('breed_ranks_bar'))
+          tabPanel("Bar Chart", plotlyOutput('breed_ranks_bar'))
         )
       )
     )
@@ -227,7 +227,7 @@ main_content <- fluidPage(
 
 # Tab 2: Trait Scores
 traits_tab <- tabPanel(
-  'Traits',
+  'Popularity Trend',
   shinyjs::useShinyjs(),
   h3("Popularity of Dog Breeds", align = "center",
      style = "border-top: 2px lightblue solid;
