@@ -139,7 +139,7 @@ breed_compare_tab <- tabPanel(
               style = "text-align: center;
               border-right:1px solid #E2DED0;",
               width = 4, offset = 2,
-              pickerInput("breed_select", h5("Breed Selection: (Select First Choice)"),
+              pickerInput("breed_select", h5("Breed: (First Selection)"),
                           choices = breeds,
                           width = '100%',
                           selected = "German Shepherd Dogs",
@@ -150,7 +150,7 @@ breed_compare_tab <- tabPanel(
                           width = '100%'),
               tabsetPanel(
                   tabPanel("Family Life", 
-                           "How well the dog breed is affectionate with family, children and other dogs.", 
+                           "How well the dog breed is affectionated with family, children and other dogs.", 
                            uiOutput("breed_traits_family_fc")),
                   tabPanel("Physical", 
                            "Characteristics based on the level of shedding, grooming frequency and drooling of the breed.",
@@ -166,7 +166,7 @@ breed_compare_tab <- tabPanel(
         column(style = "text-align: center;border-left:1px solid #E2DED0;",
                width = 4,
                pickerInput("breed_select_compare", 
-                           h5("Breed Selection: (Select Second Choice)"),   
+                           h5("Breed: (Second Selection)"),   
                choices = breeds,
                width = '100%',
                selected = "Retrievers (Labrador)",
@@ -176,7 +176,7 @@ breed_compare_tab <- tabPanel(
                           onLabel = "Radar", offLabel = "Score", width = '100%'),
                tabsetPanel(
                  tabPanel("Family Life", 
-                          "How well the dog breed is affectionate with family, children and other dogs.",
+                          "How well the dog breed is affectionated with family, children and other dogs.",
                           uiOutput("breed_traits_family_sc")),
                  tabPanel("Physical", 
                           "Characteristics based on the level of shedding, grooming frequency and drooling of the breed.", 
