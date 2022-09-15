@@ -277,7 +277,10 @@ server <- function(input, output, session) {
     p <- ggplot(filtered_data, 
                 aes(x=year, y=value, 
                     group=variable, 
-                    color=variable)) +
+                    color=variable,
+                    text = paste(
+                      "Breed: ", variable,
+                      "<br>Rank: ", value, "<br>Year: ", year))) +
       geom_line(size=0.6) + 
       geom_point(shape=20, size=3) +
       # theme_ipsum() +
@@ -309,6 +312,18 @@ server <- function(input, output, session) {
       )
     
     ggplotly(p)
+    
+    ay = list(
+      zerolinecolor = '#fcfcfc',
+      zerolinewidth = 1,
+      gridcolor = '#f0f0f0',
+      showticklabels = TRUE)
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        yaxis = ay,
+        xaxis = ay
+      )
   })
   
   output$breed_ranks_bar <- renderPlotly ({
@@ -316,7 +331,9 @@ server <- function(input, output, session) {
     p <- ggplot(data = filter(ordered_data, ordered_data$variable %in% input$breeds_select), 
            aes(x = year, 
                y = value, # Reverse the rankings from highest
-               fill = variable)) + 
+               fill = variable, text = paste(
+                 "Breed: ", variable,
+                 "<br>Rank: ", value, "<br>Year: ", year))) + 
       geom_col(position="dodge2", width = 0.5) + 
       # coord_flip() +
       scale_y_discrete(limits=rev) + # Reverse the order
@@ -346,18 +363,17 @@ server <- function(input, output, session) {
           size = 16,
           hjust = 0.5,
         ),
-        legend.title = element_text(size = 11, vjust = 0.5),
-        legend.text = element_text(size = 11, vjust = 0.5)
+        # legend.title = element_text(size = 11, vjust = 0.5),
+        # legend.text = element_text(size = 11, vjust = 0.5),
       ) 
 
     ay = list(
       zerolinecolor = '#D3D3D3',
       zerolinewidth = 1,
-      gridcolor = '#D3D3D3',
-      showticklabels = TRUE,
-      tickfont = list(size = 11))
+      gridcolor = '#f0f0f0',
+      showticklabels = TRUE)
     
-    ggplotly(p) %>%
+    ggplotly(p, tooltip = "text") %>%
       layout(
         yaxis = ay
       )
