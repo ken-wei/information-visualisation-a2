@@ -139,7 +139,7 @@ breed_compare_tab <- tabPanel(
               style = "text-align: center;
               border-right:1px solid #E2DED0;",
               width = 4, offset = 2,
-              pickerInput("breed_select", h5("Breed Selection:"),
+              pickerInput("breed_select", h5("Breed Selection: (Select First Choice)"),
                           choices = breeds,
                           width = '100%',
                           selected = "German Shepherd Dogs",
@@ -148,24 +148,25 @@ breed_compare_tab <- tabPanel(
               switchInput(inputId = "radar_toggle", value = TRUE, 
                           onLabel = "Radar", offLabel = "Score", 
                           width = '100%'),
-              # fluidRow(
-              #   column(6,
-              #          # uiOutput("breed_image" ),
-              #          ),
-              #   column(6,
-              #          
-              #          )
-              # ),
               tabsetPanel(
-                  tabPanel("Family Life", "Trait Scores rated 0 to 5", uiOutput("breed_traits_family_fc")),
-                  tabPanel("Physical", "Trait Scores rated 0 to 5",uiOutput("breed_traits_physical_fc")),
-                  tabPanel("Social", "Trait Scores rated 0 to 5", uiOutput('breed_traits_social_fc')),
-                  tabPanel("Personality", "Trait Scores rated 0 to 5", uiOutput('breed_traits_personality_fc'))),
+                  tabPanel("Family Life", 
+                           "How well the dog breed is affectionate with family, children and other dogs.", 
+                           uiOutput("breed_traits_family_fc")),
+                  tabPanel("Physical", 
+                           "Characteristics based on the level of shedding, grooming frequency and drooling of the breed.",
+                           uiOutput("breed_traits_physical_fc")),
+                  tabPanel("Social", 
+                           "The level of openness, friendliness, playfulness, protective nature of its owner and adaptability of new environments.", 
+                           uiOutput('breed_traits_social_fc')),
+                  tabPanel("Personality", 
+                           "The mental needs, vocal of breeds, difficulty of training and how energetic they are.", 
+                           uiOutput('breed_traits_personality_fc'))),
                   # tabPanel("All", echarts4rOutput('breed_traits_all')))
         ),
         column(style = "text-align: center;border-left:1px solid #E2DED0;",
                width = 4,
-               pickerInput("breed_select_compare", h5("Breed Selection:"),   
+               pickerInput("breed_select_compare", 
+                           h5("Breed Selection: (Select Second Choice)"),   
                choices = breeds,
                width = '100%',
                selected = "Retrievers (Labrador)",
@@ -174,10 +175,18 @@ breed_compare_tab <- tabPanel(
                switchInput(inputId = "radar_toggle_sec", value = TRUE, 
                           onLabel = "Radar", offLabel = "Score", width = '100%'),
                tabsetPanel(
-                 tabPanel("Family Life", "Trait Scores rated 0 to 5", uiOutput("breed_traits_family_sc")),
-                 tabPanel("Physical", "Trait Scores rated 0 to 5", uiOutput("breed_traits_physical_sc")),
-                 tabPanel("Social", "Trait Scores rated 0 to 5", uiOutput('breed_traits_social_sc')),
-                 tabPanel("Personality", "Trait Scores rated 0 to 5", uiOutput('breed_traits_personality_sc')),
+                 tabPanel("Family Life", 
+                          "How well the dog breed is affectionate with family, children and other dogs.",
+                          uiOutput("breed_traits_family_sc")),
+                 tabPanel("Physical", 
+                          "Characteristics based on the level of shedding, grooming frequency and drooling of the breed.", 
+                          uiOutput("breed_traits_physical_sc")),
+                 tabPanel("Social", 
+                          "The level of openness, friendliness, playfulness, protective nature of its owner and adaptability of new environments.", 
+                          uiOutput('breed_traits_social_sc')),
+                 tabPanel("Personality", 
+                          "The mental needs, vocal of breeds, difficulty of training and how energetic they are.", 
+                          uiOutput('breed_traits_personality_sc')),
                 # tabPanel("All", echarts4rOutput('breed_traits_all')))
                 )
           )
@@ -280,9 +289,8 @@ server <- function(input, output, session) {
                 aes(x=year, y=value, 
                     group=variable, 
                     color=variable,
-                    text = paste(
-                      "Breed: ", variable,
-                      "<br>Rank: ", value, "<br>Year: ", year))) +
+                    text = paste("In Year", year, ",", variable,
+                                 " achieved Rank", value))) +
       geom_line(size=0.6) + 
       geom_point(shape=20, size=3) +
       # theme_ipsum() +
@@ -333,9 +341,8 @@ server <- function(input, output, session) {
     p <- ggplot(data = filter(ordered_data, ordered_data$variable %in% input$breeds_select), 
            aes(x = year, 
                y = value, # Reverse the rankings from highest
-               fill = variable, text = paste(
-                 "Breed: ", variable,
-                 "<br>Rank: ", value, "<br>Year: ", year))) + 
+               fill = variable, text = paste("In Year", year, ",", variable,
+                                             " achieved Rank", value))) + 
       geom_col(position="dodge2", width = 0.5) + 
       # coord_flip() +
       scale_y_discrete(limits=rev) + # Reverse the order
