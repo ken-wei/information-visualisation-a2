@@ -7,22 +7,20 @@
 #    http://shiny.rstudio.com/
 #
 
-install.packages(c("reshape2", "shiny", "shinyWidgets", "ggplot2",
-                   "gganimate", "hrbrthemes", "reshape", "reshape2",
-                   "dplyr", "tablerDash", "echarts4r","shinythemes",
+install.packages(c("reshape2", "shiny", "shinyWidgets", "ggplot2", 
+                   "hrbrthemes", "reshape", "reshape2",
+                   "dplyr", "echarts4r","shinythemes",
                    "shinyjs", "shinyBS", "plotly", "RColorBrewer")) 
 library(shiny)
 library(shinythemes)
 library(shinyWidgets)
 library(ggplot2)
-library(gganimate)
 library(hrbrthemes)
 library(reshape)
 library(reshape2)
 library(dplyr)
-library(RColorBrewer)
+library(RColorBrewer) # Color scheme 
 library(plotly)
-library(tablerDash)
 library(echarts4r) # To draw radar plot
 library(shinyjs) # To disable html form element
 library(shinyBS) # Tooltip for the elements
